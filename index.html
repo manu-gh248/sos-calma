@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SOS Calma">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <title>SOS Calma</title>
+    <style>
+        /* ============================================
+           CSS RESET & VARIABLES
+           ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #141414;
+            --bg-card-hover: #1a1a1a;
+            --text: #f0f0f0;
+            --text-muted: #888;
+            --text-dim: #555;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.3);
+            --accent-soft: rgba(230, 57, 70, 0.1);
+            --green: #2ecc71;
+            --green-glow: rgba(46, 204, 113, 0.3);
+            --blue: #5dadec;
+            --orange: #f4a261;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ============================================
+           SCREENS
+           ============================================ */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           ONBOARDING SCREEN
+           ============================================ */
+        #onboarding {
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            text-align: center;
+        }
+
+        .onboarding-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .onboarding-sub {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 16px;
+            font-family: var(--font);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #cf3340;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid #222;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .btn-ghost:hover {
+            color: var(--text);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ============================================
+           HOME SCREEN
+           ============================================ */
+        #home {
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-greeting {
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        .emergency-btn-wrapper {
+            position: relative;
+        }
+
+        .emergency-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: none;
+            background: radial-gradient(circle at 35% 35%, #ff4757, #c0392b);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: var(--font);
+            cursor: pointer;
+            position: relative;
+            box-shadow:
+                0 0 40px var(--accent-glow),
+                0 8px 32px rgba(0,0,0,0.5),
+                inset 0 -4px 12px rgba(0,0,0,0.3),
+                inset 0 2px 6px rgba(255,255,255,0.15);
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .emergency-btn:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 0 60px var(--accent-glow),
+                0 8px 32px rgba(0,0,0,0.5),
+                inset 0 -4px 12px rgba(0,0,0,0.3),
+                inset 0 2px 6px rgba(255,255,255,0.15);
+        }
+
+        .emergency-btn:active {
+            transform: scale(0.97);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            transform: translate(-50%, -50%);
+            animation: pulse 2.5s ease-out infinite;
+            pointer-events: none;
+        }
+
+        .pulse-ring:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes pulse {
+            0% { width: 180px; height: 180px; opacity: 0.6; }
+            100% { width: 300px; height: 300px; opacity: 0; }
+        }
+
+        .home-footer {
+            display: flex;
+            gap: 16px;
+        }
+
+        .home-footer .btn-ghost {
+            font-size: 12px;
+        }
+
+        /* ============================================
+           PROTOCOL SCREEN
+           ============================================ */
+        #protocol {
+            gap: 24px;
+            padding-bottom: 120px;
+        }
+
+        .protocol-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .protocol-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            line-height: 1;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        /* Intensity selector */
+        .intensity-section {
+            text-align: center;
+        }
+
+        .intensity-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .intensity-section p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .intensity-scale {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .intensity-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .intensity-btn.selected {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .intensity-btn:hover {
+            border-color: #444;
+        }
+
+        /* Step card */
+        .step-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            border: 1px solid #1e1e1e;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .step-number {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .step-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .step-explanation {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .step-why {
+            background: rgba(93, 173, 236, 0.08);
+            border-left: 3px solid var(--blue);
+            padding: 14px 18px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin-bottom: 20px;
+        }
+
+        .step-why-label {
+            font-size: 11px;
+            color: var(--blue);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+
+        .step-why p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .step-instruction {
+            background: var(--accent-soft);
+            border-radius: var(--radius-sm);
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .step-instruction-label {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .step-instruction p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Visual element in step */
+        .step-visual {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .breathing-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .breathing-circle.animating {
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(0.7); border-color: var(--blue); color: var(--blue); }
+            12.5% { transform: scale(1); border-color: var(--accent); color: var(--accent); }
+            50% { transform: scale(1); border-color: var(--accent); color: var(--accent); }
+            62.5% { transform: scale(0.7); border-color: var(--blue); color: var(--blue); }
+        }
+
+        .body-scan-visual {
+            width: 80px;
+            height: 160px;
+            border: 2px solid #333;
+            border-radius: 40px 40px 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 0; }
+            50% { top: calc(100% - 3px); }
+        }
+
+        .vis-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .vis-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+
+        .vis-dot:nth-child(2) { animation-delay: 0.3s; background: var(--orange); }
+        .vis-dot:nth-child(3) { animation-delay: 0.6s; background: var(--blue); }
+        .vis-dot:nth-child(4) { animation-delay: 0.9s; background: var(--green); }
+        .vis-dot:nth-child(5) { animation-delay: 1.2s; background: var(--accent); }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.8); opacity: 1; }
+        }
+
+        /* Timer */
+        .timer-display {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            color: var(--accent);
+            margin: 16px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        /* Voice button */
+        .voice-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-card);
+            border: 1px solid #222;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .voice-btn.speaking {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* Fixed bottom action */
+        .step-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            background: linear-gradient(transparent, var(--bg) 30%);
+            display: flex;
+            gap: 12px;
+            z-index: 90;
+        }
+
+        .step-actions .btn {
+            flex: 1;
+        }
+
+        /* ============================================
+           STATS SCREEN
+           ============================================ */
+        #stats {
+            gap: 24px;
+        }
+
+        .stats-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stats-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid #1e1e1e;
+        }
+
+        .stat-card h4 {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            border: 1px solid #1e1e1e;
+            font-size: 13px;
+        }
+
+        .history-date {
+            color: var(--text-muted);
+        }
+
+        .history-intensity {
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .history-time {
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        .freq-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 80px;
+            padding-top: 8px;
+        }
+
+        .freq-bar {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 3px 3px 0 0;
+            min-height: 4px;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .freq-labels {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .freq-labels span {
+            flex: 1;
+            font-size: 9px;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .clear-data-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* ============================================
+           COMPLETION SCREEN
+           ============================================ */
+        #completion {
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            text-align: center;
+        }
+
+        .completion-icon {
+            font-size: 64px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .completion-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .completion-stat {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        .completion-stat div {
+            text-align: center;
+        }
+
+        .completion-stat .val {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .completion-stat .label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* ============================================
+           UTILITIES
+           ============================================ */
+        .hidden { display: none !important; }
+
+        .text-accent { color: var(--accent); }
+        .text-green { color: var(--green); }
+        .text-blue { color: var(--blue); }
+
+        .mt-8 { margin-top: 8px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-16 { margin-bottom: 16px; }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (min-width: 600px) {
+            .screen {
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            .emergency-btn {
+                width: 200px;
+                height: 200px;
+            }
+
+            .pulse-ring {
+                width: 200px;
+                height: 200px;
+            }
+
+            @keyframes pulse {
+                0% { width: 200px; height: 200px; opacity: 0.6; }
+                100% { width: 340px; height: 340px; opacity: 0; }
+            }
+        }
+
+        @media (max-height: 600px) {
+            .emergency-btn {
+                width: 140px;
+                height: 140px;
+                font-size: 15px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================
+         SCREEN: ONBOARDING
+         ======================================== -->
+    <div id="onboarding" class="screen">
+        <div>
+            <div style="font-size: 48px; margin-bottom: 16px;">🔴</div>
+            <h1 class="onboarding-title">SOS Calma</h1>
+        </div>
+        <p class="onboarding-sub">Tu protocolo personal de emergencia para cuando el estrés se dispara. Te guiaré paso a paso.</p>
+        <div class="input-group">
+            <label>¿Cómo te llamas?</label>
+            <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="given-name" autofocus>
+        </div>
+        <button class="btn btn-primary" id="startBtn" disabled>Comenzar</button>
+    </div>
+
+    <!-- ========================================
+         SCREEN: HOME
+         ======================================== -->
+    <div id="home" class="screen">
+        <p class="home-greeting" id="greeting"></p>
+        <div class="emergency-btn-wrapper">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <button class="emergency-btn" id="emergencyBtn">SOS</button>
+        </div>
+        <p style="color: var(--text-dim); font-size: 13px;">Pulsa cuando sientas estrés</p>
+        <div class="home-footer">
+            <button class="btn btn-ghost" id="statsBtn">📊 Historial</button>
+            <button class="btn btn-ghost" id="settingsBtn">⚙️ Ajustes</button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCREEN: PROTOCOL
+         ======================================== -->
+    <div id="protocol" class="screen">
+        <div class="protocol-header">
+            <button class="back-btn" id="protocolBackBtn">←</button>
+            <h2>Protocolo activo</h2>
+            <div style="width:40px"></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">Paso 0 de 7</div>
+
+        <!-- Intensity selector (shown first) -->
+        <div id="intensitySection" class="intensity-section">
+            <h3>¿Cuánto estrés sientes ahora?</h3>
+            <p>Selecciona la intensidad de 1 a 10</p>
+            <div class="intensity-scale" id="intensityScale"></div>
+            <div class="mt-16">
+                <button class="btn btn-primary" id="startProtocolBtn" disabled>Empezar protocolo</button>
+            </div>
+        </div>
+
+        <!-- Step content (dynamic) -->
+        <div id="stepContent" class="hidden"></div>
+
+        <!-- Voice button -->
+        <button class="voice-btn hidden" id="voiceBtn" title="Leer en voz alta">🔊</button>
+
+        <!-- Bottom actions -->
+        <div class="step-actions hidden" id="stepActions">
+            <button class="btn btn-secondary" id="repeatStepBtn">Repetir</button>
+            <button class="btn btn-success" id="confirmStepBtn">✓ Hecho</button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCREEN: COMPLETION
+         ======================================== -->
+    <div id="completion" class="screen">
+        <div class="completion-icon">✅</div>
+        <h2 class="completion-title" id="completionTitle">Protocolo completado</h2>
+        <p class="completion-message" id="completionMessage"></p>
+        <div class="completion-stat" id="completionStats"></div>
+        <button class="btn btn-primary" id="completionHomeBtn">Volver al inicio</button>
+    </div>
+
+    <!-- ========================================
+         SCREEN: STATS
+         ======================================== -->
+    <div id="stats" class="screen">
+        <div class="stats-header">
+            <button class="back-btn" id="statsBackBtn">←</button>
+            <h2>Tu historial</h2>
+            <div style="width:40px"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Sesiones</h4>
+                <div class="stat-value" id="totalSessions">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Intensidad media</h4>
+                <div class="stat-value" id="avgIntensity">—</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <h4>Frecuencia (últimos 7 días)</h4>
+            <div class="freq-chart" id="freqChart"></div>
+            <div class="freq-labels" id="freqLabels"></div>
+        </div>
+
+        <div class="stat-card">
+            <h4>Últimas sesiones</h4>
+            <div class="history-list" id="historyList">
+                <p style="color: var(--text-dim); font-size: 13px;">Sin registros aún</p>
+            </div>
+        </div>
+
+        <div class="clear-data-section">
+            <button class="btn btn-ghost" id="clearDataBtn" style="color: var(--accent);">Borrar todos los datos</button>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCREEN: SETTINGS
+         ======================================== -->
+    <div id="settings" class="screen" style="gap: 24px;">
+        <div class="stats-header">
+            <button class="back-btn" id="settingsBackBtn">←</button>
+            <h2>Ajustes</h2>
+            <div style="width:40px"></div>
+        </div>
+
+        <div class="input-group">
+            <label>Tu nombre</label>
+            <input type="text" id="settingsName" placeholder="Tu nombre">
+        </div>
+
+        <button class="btn btn-primary" id="saveSettingsBtn">Guardar</button>
+    </div>
+
+    <!-- ========================================
+         JAVASCRIPT
+         ======================================== -->
+    <script>
+    (function() {
+        'use strict';
+
+        // ============================================
+        // DATA LAYER — localStorage persistence
+        // ============================================
+        const STORAGE_KEY = 'sos_calma_data';
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return null;
+        }
+
+        function saveData(data) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function getDefaultData() {
+            return {
+                name: '',
+                sessions: [],       // [{date, time, intensity, completed, durationSec}]
+                createdAt: new Date().toISOString()
+            };
+        }
+
+        let appData = loadData() || getDefaultData();
+
+        // ============================================
+        // PROTOCOL STEPS DEFINITION
+        // ============================================
+        const STEPS = [
+            {
+                id: 'recognize',
+                title: 'Para. Reconoce lo que pasa.',
+                explanation: 'Lo que sientes ahora — corazón acelerado, respiración corta, tensión muscular, quizá sudoración — son señales de que tu cerebro ha activado el modo alerta. Está interpretando algo de tu entorno como una amenaza, aunque probablemente no lo sea. Es biología, no debilidad.',
+                why: 'Tu cerebro sigue programado para la supervivencia: detecta peligro en situaciones cotidianas (un plazo, una discusión, una incertidumbre) y reacciona como si fuera una amenaza real. Reconocerlo es el primer paso para desactivar esa falsa alarma.',
+                instruction: 'Di en voz alta o para ti mismo: "Mi cerebro ha activado el modo alerta. No hay peligro real. Es una reacción biológica y puedo gestionarla."',
+                visual: 'dots',
+                voiceText: 'Para. Reconoce lo que está pasando. Lo que sientes ahora son señales de que tu cerebro ha activado el modo alerta. Está interpretando algo como una amenaza, aunque probablemente no lo sea. Es biología, no debilidad. Di para ti mismo: Mi cerebro ha activado el modo alerta. No hay peligro real.'
+            },
+            {
+                id: 'reframe',
+                title: 'Redefine los síntomas.',
+                explanation: 'Esos síntomas que sientes — el corazón rápido, la tensión — no son tu enemigo. Son tu cuerpo preparándose para afrontar un reto. Un estudio de Harvard demostró que cuando reinterpretas el estrés como preparación en vez de como peligro, tu cuerpo responde de manera completamente diferente: los vasos sanguíneos no se contraen y el impacto cardiovascular negativo desaparece.',
+                why: 'Cuando etiquetas el estrés como algo negativo, lo amplificas. Cuando lo ves como energía útil, tu cerebro cambia su respuesta fisiológica. No es autoengaño: es redirigir una respuesta biológica real.',
+                instruction: 'Dite a ti mismo: "Esto es mi cuerpo calentando motores. Estoy poniéndome a punto para lo que tengo que hacer. Esta energía me va a servir."',
+                visual: 'dots',
+                voiceText: 'Redefine los síntomas. Lo que sientes no es tu enemigo. Es tu cuerpo preparándose para afrontar un reto. Dite: Esto es mi cuerpo calentando motores. Estoy poniéndome a punto. Esta energía me va a servir.'
+            },
+            {
+                id: 'breathe',
+                title: 'Respira con exhalaciones largas.',
+                explanation: 'La respiración es el mando a distancia de tu sistema nervioso. Cuando exhalas más tiempo del que inhalas, activas el sistema nervioso parasimpático, que es el freno del estrés. Esto baja directamente las frecuencias High Beta (las de alerta excesiva) y aumenta las frecuencias Alfa (las de calma).',
+                why: 'Tu cerebro está disparando frecuencias eléctricas de 20-30 Hz (High Beta): estado de hiperalerta que consume una cantidad enorme de energía. La respiración lenta y consciente es la forma más directa de bajar esas frecuencias hacia el rango Alfa (8-12 Hz), donde está la calma y la regeneración.',
+                instruction: 'Haz 6 ciclos: Inhala 4 segundos por la nariz. Exhala 6 segundos por la boca, lentamente. Sigue el círculo en pantalla.',
+                visual: 'breathing',
+                voiceText: 'Respira con exhalaciones largas. Inhala 4 segundos por la nariz. Exhala 6 segundos por la boca. Repite 6 veces. Esto baja las frecuencias de hiperalerta de tu cerebro.'
+            },
+            {
+                id: 'visualize',
+                title: 'Visualización tridimensional.',
+                explanation: 'Este es el ejercicio más rápido que existe para generar frecuencias Alfa en tu cerebro — más rápido incluso que meditar o hacer deporte. Al imaginar espacios tridimensionales dentro de tu propio cuerpo, tu cerebro cambia su patrón eléctrico hacia la calma casi instantáneamente.',
+                why: 'La imaginación espacial activa regiones cerebrales que compiten con las zonas de alerta. Al forzar a tu cerebro a pensar en tres dimensiones sobre espacios que te contienen, las frecuencias Alfa se disparan y las High Beta bajan.',
+                instruction: 'Cierra los ojos y visualiza, una por una, estas distancias:\n\n1. El espacio entre tus dos orejas\n2. La distancia entre la punta de tu nariz y tu barbilla\n3. La distancia entre tu ojo izquierdo y tu barbilla\n4. La distancia entre tu ojo derecho y tu barbilla\n5. La columna de aire dentro de tu nariz\n6. El espacio que ocupa tu lengua en tu boca\n7. La distancia entre tu ceja derecha y la punta de tu nariz\n8. La distancia entre tu ceja izquierda y la punta de tu nariz\n9. De nuevo, el espacio entre tus dos orejas\n\nAbre los ojos.',
+                visual: 'scan',
+                voiceText: 'Visualización tridimensional. Cierra los ojos. Imagina el espacio entre tus dos orejas. La distancia entre la punta de tu nariz y tu barbilla. La distancia entre tu ojo izquierdo y tu barbilla. Ahora el ojo derecho y tu barbilla. La columna de aire dentro de tu nariz. El espacio que ocupa tu lengua en tu boca. La distancia entre tu ceja derecha y la punta de tu nariz. Tu ceja izquierda y la punta de tu nariz. De nuevo, el espacio entre tus dos orejas. Abre los ojos.'
+            },
+            {
+                id: 'identify',
+                title: 'Identifica el beneficio y el límite.',
+                explanation: 'El estrés en sí no es malo si tiene un propósito (eustrés). Pero tu cerebro necesita dos cosas para no convertirlo en algo destructivo: saber qué gana con este esfuerzo, y saber cuándo acabará. Sin esta información, interpreta que el estrés durará para siempre.',
+                why: 'Cuando le das a tu cerebro un beneficio y un horizonte temporal, transformas el estrés tóxico (distrés) en estrés productivo (eustrés). Tu cerebro deja de verlo como amenaza y empieza a verlo como inversión.',
+                instruction: 'Responde mentalmente o en voz alta:\n\n1. "¿Qué beneficio hay detrás de lo que me estresa?" (encontrar la ganancia, aunque sea pequeña)\n\n2. "¿Cuánto durará esta situación?" (ponle una fecha o periodo concreto)\n\nSi no encuentras beneficio ni final, es una señal de que necesitas cambiar algo en la situación, no solo en tu reacción.',
+                visual: 'none',
+                voiceText: 'Identifica el beneficio y el límite temporal. Pregúntate: ¿Qué beneficio hay detrás de lo que me estresa? Y: ¿Cuánto durará esta situación? Ponle una fecha concreta. Tu cerebro necesita saber que esto tiene un final.'
+            },
+            {
+                id: 'focus',
+                title: 'Nombra 20 objetos.',
+                explanation: 'Este ejercicio de focalización obliga a tu cerebro a salir del pensamiento rumiativo (el bucle de preocupación) y a entrar en modo de atención dirigida. Al nombrar objetos concretos, generas frecuencias Beta de concentración productiva y desplazas las frecuencias High Beta de estrés.',
+                why: 'El estrés te tiene en un foco interno negativo: pensamientos en bucle. Al forzar un foco externo y concreto (nombrar objetos visibles), rompes ese bucle neuronal y le das a tu cerebro una tarea manejable que genera dopamina al completarse.',
+                instruction: 'Mira a tu alrededor y nombra mentalmente o en voz alta 20 objetos distintos que veas. Sin repetir. Lo más rápido que puedas, pero nombrando cada uno: "mesa, lámpara, taza, ventana, cable..."',
+                visual: 'none',
+                voiceText: 'Nombra 20 objetos. Mira a tu alrededor y nombra en voz alta 20 objetos distintos que veas. Sin repetir. Lo más rápido que puedas. Esto rompe el bucle de pensamientos estresantes y activa la concentración productiva.'
+            },
+            {
+                id: 'anchor',
+                title: 'Ancla una sensación de bienestar.',
+                explanation: 'Tu cerebro tiene la capacidad de volver a fabricar cualquier estado que ya haya experimentado. Si alguna vez te sentiste tranquilo, seguro, orgulloso de ti — tu cerebro puede regenerar esa neuroquímica ahora mismo. No es pensamiento positivo vacío: es aprovechar una capacidad real de tu sistema nervioso.',
+                why: 'Las redes neuronales que generaron esa sensación de bienestar en el pasado siguen ahí. Al reactivarlas conscientemente, le muestras a tu cerebro que el bienestar es una opción posible, no una amenaza. Esto cambia su orientación de "modo supervivencia" a "modo oportunidad".',
+                instruction: 'Cierra los ojos un momento. Piensa en una situación concreta del pasado en la que te sentías bien: tranquilo, seguro, satisfecho. No importa cuándo fue ni lo grande o pequeña que fuera. Revive esa escena: qué veías, qué sentías en el cuerpo, qué emociones había. Quédate ahí 30 segundos. Luego abre los ojos.',
+                visual: 'none',
+                voiceText: 'Ancla una sensación de bienestar. Cierra los ojos. Piensa en un momento del pasado en que te sentías bien, tranquilo, seguro. Revive esa escena. Qué veías. Qué sentías en el cuerpo. Quédate ahí unos 30 segundos. Tu cerebro puede regenerar esa sensación ahora mismo.'
+            }
+        ];
+
+        // ============================================
+        // DOM REFS
+        // ============================================
+        const $ = id => document.getElementById(id);
+        const screens = {
+            onboarding: $('onboarding'),
+            home: $('home'),
+            protocol: $('protocol'),
+            completion: $('completion'),
+            stats: $('stats'),
+            settings: $('settings')
+        };
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function showScreen(name) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[name].classList.add('active');
+            // Stop speech on navigation
+            if (window.speechSynthesis) speechSynthesis.cancel();
+        }
+
+        // ============================================
+        // ONBOARDING
+        // ============================================
+        const nameInput = $('nameInput');
+        const startBtn = $('startBtn');
+
+        nameInput.addEventListener('input', () => {
+            startBtn.disabled = nameInput.value.trim().length === 0;
+        });
+
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
+        });
+
+        startBtn.addEventListener('click', () => {
+            appData.name = nameInput.value.trim();
+            saveData(appData);
+            goHome();
+        });
+
+        // ============================================
+        // HOME
+        // ============================================
+        function goHome() {
+            updateGreeting();
+            showScreen('home');
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let saludo = 'Hola';
+            if (hour < 12) saludo = 'Buenos días';
+            else if (hour < 20) saludo = 'Buenas tardes';
+            else saludo = 'Buenas noches';
+            $('greeting').textContent = `${saludo}, ${appData.name}`;
+        }
+
+        $('emergencyBtn').addEventListener('click', startProtocol);
+        $('statsBtn').addEventListener('click', () => { renderStats(); showScreen('stats'); });
+        $('settingsBtn').addEventListener('click', () => {
+            $('settingsName').value = appData.name;
+            showScreen('settings');
+        });
+
+        // ============================================
+        // SETTINGS
+        // ============================================
+        $('settingsBackBtn').addEventListener('click', goHome);
+        $('saveSettingsBtn').addEventListener('click', () => {
+            const n = $('settingsName').value.trim();
+            if (n) {
+                appData.name = n;
+                saveData(appData);
+            }
+            goHome();
+        });
+
+        // ============================================
+        // PROTOCOL
+        // ============================================
+        let currentStep = -1; // -1 = intensity selection
+        let currentIntensity = 0;
+        let sessionStartTime = null;
+        let breathingInterval = null;
+
+        function startProtocol() {
+            currentStep = -1;
+            currentIntensity = 0;
+            sessionStartTime = Date.now();
+            showScreen('protocol');
+            showIntensitySelector();
+        }
+
+        function showIntensitySelector() {
+            $('intensitySection').classList.remove('hidden');
+            $('stepContent').classList.add('hidden');
+            $('stepActions').classList.add('hidden');
+            $('voiceBtn').classList.add('hidden');
+            $('startProtocolBtn').disabled = true;
+            $('progressBar').style.width = '0%';
+            $('progressText').textContent = '';
+
+            const scale = $('intensityScale');
+            scale.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'intensity-btn';
+                btn.textContent = i;
+                btn.addEventListener('click', () => {
+                    scale.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    currentIntensity = i;
+                    $('startProtocolBtn').disabled = false;
+                });
+                scale.appendChild(btn);
+            }
+        }
+
+        $('startProtocolBtn').addEventListener('click', () => {
+            $('intensitySection').classList.add('hidden');
+            $('stepContent').classList.remove('hidden');
+            $('stepActions').classList.remove('hidden');
+            $('voiceBtn').classList.remove('hidden');
+            currentStep = 0;
+            renderStep();
+        });
+
+        $('protocolBackBtn').addEventListener('click', () => {
+            if (breathingInterval) clearInterval(breathingInterval);
+            if (window.speechSynthesis) speechSynthesis.cancel();
+            goHome();
+        });
+
+        $('confirmStepBtn').addEventListener('click', () => {
+            if (breathingInterval) clearInterval(breathingInterval);
+            if (window.speechSynthesis) speechSynthesis.cancel();
+            currentStep++;
+            if (currentStep >= STEPS.length) {
+                completeProtocol();
+            } else {
+                renderStep();
+            }
+        });
+
+        $('repeatStepBtn').addEventListener('click', () => {
+            if (breathingInterval) clearInterval(breathingInterval);
+            if (window.speechSynthesis) speechSynthesis.cancel();
+            renderStep();
+        });
+
+        function renderStep() {
+            const step = STEPS[currentStep];
+            const total = STEPS.length;
+            const pct = ((currentStep + 1) / total) * 100;
+
+            $('progressBar').style.width = pct + '%';
+            $('progressText').textContent = `Paso ${currentStep + 1} de ${total}`;
+
+            let visualHTML = '';
+            if (step.visual === 'breathing') {
+                visualHTML = `
+                    <div class="step-visual">
+                        <div class="breathing-circle animating" id="breathCircle">Inhala...</div>
+                    </div>`;
+            } else if (step.visual === 'scan') {
+                visualHTML = `
+                    <div class="step-visual">
+                        <div class="body-scan-visual">
+                            <div class="scan-line"></div>
+                        </div>
+                    </div>`;
+            } else if (step.visual === 'dots') {
+                visualHTML = `
+                    <div class="step-visual">
+                        <div class="vis-dots">
+                            <div class="vis-dot"></div>
+                            <div class="vis-dot"></div>
+                            <div class="vis-dot"></div>
+                            <div class="vis-dot"></div>
+                            <div class="vis-dot"></div>
+                        </div>
+                    </div>`;
+            }
+
+            const instructionLines = step.instruction.replace(/\n/g, '<br>');
+
+            $('stepContent').innerHTML = `
+                <div class="step-card">
+                    <div class="step-number">Paso ${currentStep + 1}</div>
+                    <h3 class="step-title">${step.title}</h3>
+                    <p class="step-explanation">${step.explanation}</p>
+                    <div class="step-why">
+                        <div class="step-why-label">¿Por qué?</div>
+                        <p>${step.why}</p>
+                    </div>
+                    ${visualHTML}
+                    <div class="step-instruction">
+                        <div class="step-instruction-label">Qué hacer ahora</div>
+                        <p>${instructionLines}</p>
+                    </div>
+                </div>`;
+
+            // Breathing animation text
+            if (step.visual === 'breathing') {
+                startBreathingAnimation();
+            }
+
+            // Scroll to top of step content
+            $('stepContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function startBreathingAnimation() {
+            if (breathingInterval) clearInterval(breathingInterval);
+            const circle = document.getElementById('breathCircle');
+            if (!circle) return;
+
+            let phase = 0; // 0=inhale, 1=exhale
+            const phases = ['Inhala...', 'Exhala...'];
+
+            function tick() {
+                if (!circle) return;
+                circle.textContent = phases[phase];
+                phase = (phase + 1) % 2;
+            }
+
+            tick();
+            breathingInterval = setInterval(tick, 4000);
+        }
+
+        // ============================================
+        // VOICE (Web Speech API)
+        // ============================================
+        let isSpeaking = false;
+
+        $('voiceBtn').addEventListener('click', () => {
+            if (!window.speechSynthesis) return;
+
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                $('voiceBtn').classList.remove('speaking');
+                return;
+            }
+
+            const step = STEPS[currentStep];
+            if (!step) return;
+
+            const utterance = new SpeechSynthesisUtterance(step.voiceText);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+
+            // Try to find a Spanish voice
+            const voices = speechSynthesis.getVoices();
+            const esVoice = voices.find(v => v.lang.startsWith('es'));
+            if (esVoice) utterance.voice = esVoice;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                $('voiceBtn').classList.add('speaking');
+            };
+            utterance.onend = () => {
+                isSpeaking = false;
+                $('voiceBtn').classList.remove('speaking');
+            };
+            utterance.onerror = () => {
+                isSpeaking = false;
+                $('voiceBtn').classList.remove('speaking');
+            };
+
+            speechSynthesis.speak(utterance);
+        });
+
+        // Preload voices
+        if (window.speechSynthesis) {
+            speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+
+        // ============================================
+        // COMPLETION
+        // ============================================
+        function completeProtocol() {
+            const durationSec = Math.round((Date.now() - sessionStartTime) / 1000);
+            const now = new Date();
+
+            const session = {
+                date: now.toISOString(),
+                time: now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                dateStr: now.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }),
+                intensity: currentIntensity,
+                completed: true,
+                durationSec: durationSec
+            };
+
+            appData.sessions.push(session);
+            saveData(appData);
+
+            // Show completion
+            const mins = Math.floor(durationSec / 60);
+            const secs = durationSec % 60;
+
+            $('completionTitle').textContent = `Bien hecho, ${appData.name}`;
+            $('completionMessage').textContent = 'Has completado los 7 pasos del protocolo. Cada vez que lo usas, estás entrenando a tu cerebro para responder mejor al estrés. Es neuroplasticidad en acción.';
+            $('completionStats').innerHTML = `
+                <div>
+                    <div class="val">${mins}:${secs.toString().padStart(2, '0')}</div>
+                    <div class="label">Duración</div>
+                </div>
+                <div>
+                    <div class="val">${currentIntensity}/10</div>
+                    <div class="label">Intensidad</div>
+                </div>
+                <div>
+                    <div class="val">${appData.sessions.length}</div>
+                    <div class="label">Sesión nº</div>
+                </div>`;
+
+            $('stepActions').classList.add('hidden');
+            $('voiceBtn').classList.add('hidden');
+            showScreen('completion');
+        }
+
+        $('completionHomeBtn').addEventListener('click', goHome);
+
+        // ============================================
+        // STATS
+        // ============================================
+        function renderStats() {
+            const sessions = appData.sessions;
+
+            $('totalSessions').textContent = sessions.length;
+
+            if (sessions.length > 0) {
+                const avg = sessions.reduce((s, x) => s + x.intensity, 0) / sessions.length;
+                $('avgIntensity').textContent = avg.toFixed(1);
+            } else {
+                $('avgIntensity').textContent = '—';
+            }
+
+            // Frequency chart (last 7 days)
+            const chart = $('freqChart');
+            const labels = $('freqLabels');
+            chart.innerHTML = '';
+            labels.innerHTML = '';
+
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const today = new Date();
+            const days = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const count = sessions.filter(s => s.date.startsWith(dateStr)).length;
+                days.push({ name: dayNames[d.getDay()], count });
+            }
+
+            const maxCount = Math.max(1, ...days.map(d => d.count));
+
+            days.forEach(d => {
+                const bar = document.createElement('div');
+                bar.className = 'freq-bar';
+                bar.style.height = (d.count / maxCount * 100) + '%';
+                if (d.count === 0) bar.style.opacity = '0.15';
+                chart.appendChild(bar);
+
+                const lbl = document.createElement('span');
+                lbl.textContent = d.name;
+                labels.appendChild(lbl);
+            });
+
+            // History list
+            const list = $('historyList');
+            if (sessions.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">Sin registros aún</p>';
+            } else {
+                list.innerHTML = '';
+                const recent = sessions.slice(-10).reverse();
+                recent.forEach(s => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <div>
+                            <div class="history-date">${s.dateStr || '—'}</div>
+                            <div class="history-time">${s.time || ''}</div>
+                        </div>
+                        <div class="history-intensity">${s.intensity}/10</div>`;
+                    list.appendChild(item);
+                });
+            }
+        }
+
+        $('statsBackBtn').addEventListener('click', goHome);
+
+        $('clearDataBtn').addEventListener('click', () => {
+            if (confirm('¿Borrar todos los datos? Esta acción no se puede deshacer.')) {
+                const name = appData.name; // Keep name
+                appData = getDefaultData();
+                appData.name = name;
+                saveData(appData);
+                renderStats();
+            }
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            if (appData.name) {
+                goHome();
+            } else {
+                showScreen('onboarding');
+            }
+        }
+
+        init();
+
+        // ============================================
+        // SERVICE WORKER REGISTRATION
+        // ============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+
+    })();
+    </script>
+
+</body>
+</html>
