@@ -42,6 +42,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
 @keyframes rotateIn{from{opacity:0;transform:rotate(-10deg) scale(.9)}to{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes morphBlob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}25%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}50%{border-radius:50% 60% 30% 60%/30% 50% 70% 60%}75%{border-radius:60% 30% 60% 40%/70% 40% 50% 60%}}
+@keyframes labelSwitch{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.95)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}56%{transform:scale(1)}}
 
 /* --- Components --- */
 .input-group{width:100%;max-width:320px}
@@ -209,6 +212,22 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 #settings{gap:24px}
 .clear-sec{text-align:center;padding:20px 0}
 
+/* Reframe morph */
+.reframe-morph{width:100px;height:100px;background:linear-gradient(135deg,var(--accent),var(--orange),var(--blue));animation:morphBlob 6s ease-in-out infinite,float 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 30px rgba(230,57,70,.2)}
+.reframe-labels{display:flex;gap:24px;font-size:13px;font-weight:600;animation:labelSwitch 4s ease-in-out infinite}
+.reframe-labels .from{color:var(--accent);text-decoration:line-through;opacity:.5}
+.reframe-labels .to{color:var(--green)}
+.reframe-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+
+/* Credits */
+.credits{font-size:11px;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:4px}
+.credits-heart{display:inline-block;animation:heartbeat 1.2s ease-in-out infinite;image-rendering:pixelated}
+.version-tag{font-size:10px;color:#333;letter-spacing:1px}
+
+/* Update banner */
+.update-bar{position:fixed;top:0;left:0;right:0;background:linear-gradient(90deg,var(--accent),var(--orange));color:#fff;font-size:13px;font-weight:600;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:200;animation:slideInLeft .4s ease;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.update-bar button{background:#fff;color:var(--accent);border:none;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)}
+
 /* Responsive */
 @media(min-width:600px){.screen{max-width:480px;margin:0 auto}.sos-btn{width:200px;height:200px}}
 @media(max-height:600px){.sos-btn{width:140px;height:140px;font-size:15px}}
@@ -232,6 +251,11 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="sos-wrap"><div class="sos-ring"></div><div class="sos-ring"></div><button class="sos-btn" id="emergencyBtn">SOS</button></div>
     <p style="color:var(--dim);font-size:13px">Pulsa cuando sientas estrés</p>
     <div class="home-ft"><button class="btn btn-g" id="statsBtn">📊 Historial</button><button class="btn btn-g" id="settingsBtn">⚙️ Ajustes</button></div>
+    <div class="credits">
+        <span>made with <canvas id="pixelHeart" width="16" height="14" class="credits-heart" style="vertical-align:middle"></canvas> by <strong>LIDERAPIA</strong> team</span>
+        <span class="version-tag">v2.1.0</span>
+    </div>
+    <button class="btn btn-g" id="checkUpdateBtn" style="font-size:11px;margin-top:-16px">🔄 Buscar actualizaciones</button>
 </div>
 
 <!-- PROTOCOL -->
@@ -363,32 +387,47 @@ const $=id=>document.getElementById(id);
 const screens={onboarding:$('onboarding'),home:$('home'),protocol:$('protocol'),completion:$('completion'),stats:$('stats'),settings:$('settings')};
 function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');speechSynthesis&&speechSynthesis.cancel()}
 
-// ========== VOICE (improved) ==========
+// ========== VOICE (expressive) ==========
+let esVoice=null;
+function findVoice(){
+  const voices=speechSynthesis.getVoices();
+  const preferred=['Mónica','Jorge','Lucia','Paulina','Google español','Microsoft Helena'];
+  esVoice=voices.find(v=>v.lang.startsWith('es')&&preferred.some(p=>v.name.includes(p)))
+    ||voices.find(v=>v.lang.startsWith('es')&&v.localService)
+    ||voices.find(v=>v.lang.startsWith('es'));
+}
 function speak(text,cb){
   if(!window.speechSynthesis)return cb&&cb();
   speechSynthesis.cancel();
-  // Split on ... for pauses
+  if(!esVoice)findVoice();
+  // Split on ... for pauses, detect emphasis markers
   const parts=text.split('...').map(s=>s.trim()).filter(Boolean);
   let i=0;
   function next(){
     if(i>=parts.length){$('voiceBtn').classList.remove('on');return cb&&cb()}
-    const u=new SpeechSynthesisUtterance(parts[i]);
-    u.lang='es-ES';u.rate=0.82;u.pitch=1.05;u.volume=1;
-    const voices=speechSynthesis.getVoices();
-    // Prefer natural-sounding Spanish voices
-    const preferred=['Google español','Mónica','Jorge','Lucia','Microsoft Helena','Paulina'];
-    let voice=voices.find(v=>v.lang.startsWith('es')&&preferred.some(p=>v.name.includes(p)));
-    if(!voice) voice=voices.find(v=>v.lang.startsWith('es')&&v.localService);
-    if(!voice) voice=voices.find(v=>v.lang.startsWith('es'));
-    if(voice) u.voice=voice;
-    u.onend=()=>{i++;setTimeout(next,600)};
+    const seg=parts[i];
+    // Detect if segment is a key phrase (short = emphasis, question = rising pitch)
+    const isQuestion=seg.endsWith('?');
+    const isShort=seg.split(' ').length<=5;
+    const isFirst=i===0;
+    const u=new SpeechSynthesisUtterance(seg);
+    u.lang='es-ES';u.volume=1;
+    if(esVoice)u.voice=esVoice;
+    // Vary prosody for expressiveness
+    if(isFirst){u.rate=0.78;u.pitch=1.1}      // opening: slower, slightly higher
+    else if(isQuestion){u.rate=0.85;u.pitch=1.18}  // questions: lift pitch
+    else if(isShort){u.rate=0.72;u.pitch=1.08}      // key phrases: slow and deliberate
+    else{u.rate=0.84;u.pitch=1.02+Math.random()*0.06} // normal: slight random variation
+    // Pause duration: longer after short emphatic phrases, shorter in flow
+    const pauseMs=isShort?800:isQuestion?700:500;
+    u.onend=()=>{i++;setTimeout(next,pauseMs)};
     u.onerror=()=>{i++;next()};
     speechSynthesis.speak(u);
   }
   $('voiceBtn').classList.add('on');
   next();
 }
-if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}
+if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=findVoice}
 
 // ========== ONBOARDING ==========
 const nameIn=$('nameInput'),startBtn=$('startBtn');
@@ -464,7 +503,8 @@ function renderStep(){
   const why=STEP_WHYS[curStep];
 
   let visual='';
-  if(sid==='recognize'||sid==='reframe') visual=makeDotsWave();
+  if(sid==='recognize') visual=makeDotsWave();
+  else if(sid==='reframe') visual=makeReframeMorph();
   else if(sid==='breathe') visual='<div id="breathUI"></div>';
   else if(sid==='visualize') visual='<div id="vizUI"></div>';
   else if(sid==='identify') visual=makeBrainSVG();
@@ -492,6 +532,13 @@ function renderStep(){
 function makeDotsWave(){
   let bars='';for(let i=0;i<20;i++) bars+=`<div class="wave-bar" style="animation-delay:${i*0.06}s"></div>`;
   return `<div class="wave-wrap">${bars}</div>`;
+}
+
+function makeReframeMorph(){
+  return `<div class="reframe-wrap">
+    <div class="reframe-morph">⚡</div>
+    <div class="reframe-labels"><span class="from">Amenaza</span> → <span class="to">Energía</span></div>
+  </div>`;
 }
 
 function makeBrainSVG(){
@@ -665,9 +712,76 @@ function renderStats(){
 $('statsBack').addEventListener('click',goHome);
 $('clearBtn').addEventListener('click',()=>{if(confirm('¿Borrar todos los datos?')){const n=D.name;D=defaults();D.name=n;save(D);renderStats()}});
 
+// ========== PIXEL HEART ==========
+function drawPixelHeart(){
+  const c=$('pixelHeart');if(!c)return;const x=c.getContext('2d');
+  x.clearRect(0,0,16,14);
+  x.fillStyle='#e63946';
+  // pixel heart pattern (16x14)
+  const rows=[
+    [2,3,4,8,9,10],
+    [1,2,3,4,5,7,8,9,10,11],
+    [0,1,2,3,4,5,6,7,8,9,10,11,12],
+    [0,1,2,3,4,5,6,7,8,9,10,11,12],
+    [0,1,2,3,4,5,6,7,8,9,10,11,12],
+    [1,2,3,4,5,6,7,8,9,10,11],
+    [2,3,4,5,6,7,8,9,10],
+    [3,4,5,6,7,8,9],
+    [4,5,6,7,8],
+    [5,6,7],
+    [6]
+  ];
+  rows.forEach((cols,r)=>cols.forEach(c2=>x.fillRect(c2,r+1,1,1)));
+  // highlight
+  x.fillStyle='rgba(255,255,255,.35)';
+  [[[2,2],[3,2],[4,2]],[[2,3],[3,3]]].forEach(ps=>ps.forEach(p=>x.fillRect(p[0],p[1],1,1)));
+}
+
+// ========== PWA UPDATE SYSTEM ==========
+const APP_VERSION='2.1.0';
+let swRegistration=null;
+function initSW(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    swRegistration=reg;
+    // Check for waiting worker (update ready)
+    if(reg.waiting)showUpdateBanner();
+    // Listen for new worker installing
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller)showUpdateBanner();
+      });
+    });
+  }).catch(()=>{});
+  // When controller changes, reload
+  navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload());
+}
+
+function showUpdateBanner(){
+  if(document.getElementById('updateBanner'))return;
+  const bar=document.createElement('div');bar.id='updateBanner';bar.className='update-bar';
+  bar.innerHTML='Nueva versión disponible <button id="doUpdate">Actualizar ahora</button>';
+  document.body.prepend(bar);
+  document.getElementById('doUpdate').addEventListener('click',()=>{
+    if(swRegistration&&swRegistration.waiting){swRegistration.waiting.postMessage({type:'SKIP_WAITING'})}
+    bar.remove();
+  });
+}
+
+function checkForUpdates(){
+  if(!swRegistration){alert('Service worker no disponible. Recarga la página.');return}
+  swRegistration.update().then(()=>{
+    if(swRegistration.waiting)showUpdateBanner();
+    else alert('Estás en la última versión (v'+APP_VERSION+')');
+  }).catch(()=>alert('No se pudo comprobar. Verifica tu conexión.'));
+}
+
+$('checkUpdateBtn').addEventListener('click',checkForUpdates);
+
 // ========== INIT ==========
 D.name?goHome():show('onboarding');
-if('serviceWorker' in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+window.addEventListener('load',()=>{initSW();drawPixelHeart()});
 })();
 </script>
 </body>
