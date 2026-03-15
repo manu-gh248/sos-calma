@@ -25,6 +25,9 @@
 --font:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:linear-gradient(175deg,#05080f 0%,#0a0e1a 25%,#0d1117 50%,#0a0f1a 75%,#080c15 100%)}
+body::after{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 20% 15%,rgba(93,173,236,.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(168,85,247,.04) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(46,204,113,.02) 0%,transparent 60%)}
+#starfield{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .screen{display:none;min-height:100vh;min-height:100dvh;padding:24px;animation:fadeUp .5s ease}
 .screen.active{display:flex;flex-direction:column}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -45,6 +48,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 @keyframes morphBlob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}25%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}50%{border-radius:50% 60% 30% 60%/30% 50% 70% 60%}75%{border-radius:60% 30% 60% 40%/70% 40% 50% 60%}}
 @keyframes labelSwitch{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.95)}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}56%{transform:scale(1)}}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.15}}
 
 /* --- Components --- */
 .input-group{width:100%;max-width:320px}
@@ -99,7 +103,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .int-btn.sel{border-color:var(--accent);background:var(--asoft);color:var(--accent);transform:scale(1.1)}
 
 /* Step Card */
-.step-card{background:var(--card);border-radius:var(--r);padding:28px 24px;border:1px solid #1e1e1e;animation:fadeUp .5s ease}
+.step-card{background:rgba(21,21,21,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--r);padding:28px 24px;border:1px solid rgba(255,255,255,.05);animation:fadeUp .5s ease}
 .step-num{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .step-num .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
 .step-title{font-size:21px;font-weight:700;margin-bottom:16px;line-height:1.3;background:linear-gradient(135deg,var(--text),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -116,7 +120,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* Breathing UI */
 .breath-ui{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;animation:scaleIn .6s ease}
-.breath-circle{width:160px;height:160px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:width .15s ease,height .15s ease,border-color .3s,background .3s;background:var(--asoft)}
+.breath-area{width:200px;height:200px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.breath-circle{width:160px;height:160px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:transform .15s ease,border-color .3s,background .3s;background:var(--asoft)}
 .breath-circle.inhaling{border-color:var(--blue);background:var(--bsoft)}
 .breath-circle.exhaling{border-color:var(--green);background:rgba(46,204,113,.08)}
 .breath-circle.holding{border-color:var(--orange);background:rgba(244,162,97,.08)}
@@ -185,7 +190,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 #stats{gap:24px}
 .stats-hd{display:flex;align-items:center;justify-content:space-between}
 .stats-hd h2{font-size:20px;font-weight:700}
-.stat-card{background:var(--card);border-radius:var(--r);padding:20px;border:1px solid #1e1e1e}
+.stat-card{background:rgba(21,21,21,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.05)}
 .stat-card h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .stat-val{font-size:32px;font-weight:700}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -236,6 +241,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     </style>
 </head>
 <body>
+<div id="starfield"></div>
 <!-- ONBOARDING -->
 <div id="onboarding" class="screen">
     <div class="ob-icon">🔴</div>
@@ -389,7 +395,8 @@ const screens={onboarding:$('onboarding'),home:$('home'),protocol:$('protocol'),
 function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');speechSynthesis&&speechSynthesis.cancel()}
 
 // ========== VOICE (expressive) ==========
-let esVoice=null;
+let esVoice=null,speakingId=0;
+function stopSpeaking(){speakingId++;speechSynthesis&&speechSynthesis.cancel();$('voiceBtn').classList.remove('on')}
 function findVoice(){
   const voices=speechSynthesis.getVoices();
   const preferred=['Mónica','Jorge','Lucia','Paulina','Google español','Microsoft Helena'];
@@ -401,8 +408,9 @@ function speak(text,cb){
   if(!window.speechSynthesis)return cb&&cb();
   speechSynthesis.cancel();
   if(!esVoice)findVoice();
+  stopSpeaking(); // cancel any running speech
+  const myId=++speakingId; // unique id so we can abort if stopped
   // Split on [PAUSE] first (long pauses), then ... (short pauses)
-  // Build a flat list of {text, longPauseAfter}
   const segments=[];
   text.split('[PAUSE]').forEach((block,bi,arr)=>{
     const subs=block.split('...').map(s=>s.trim()).filter(Boolean);
@@ -413,6 +421,7 @@ function speak(text,cb){
   });
   let i=0;
   function next(){
+    if(myId!==speakingId)return; // was stopped
     if(i>=segments.length){$('voiceBtn').classList.remove('on');return cb&&cb()}
     const seg=segments[i];
     const txt=seg.text;
@@ -426,10 +435,9 @@ function speak(text,cb){
     else if(isQuestion){u.rate=0.85;u.pitch=1.18}
     else if(isShort){u.rate=0.72;u.pitch=1.08}
     else{u.rate=0.84;u.pitch=1.02+Math.random()*0.06}
-    // Long pause (4.5s) after [PAUSE] markers, normal pauses otherwise
     const pauseMs=seg.longPause?4500:isShort?800:isQuestion?700:500;
-    u.onend=()=>{i++;setTimeout(next,pauseMs)};
-    u.onerror=()=>{i++;next()};
+    u.onend=()=>{i++;if(myId===speakingId)setTimeout(next,pauseMs)};
+    u.onerror=()=>{i++;if(myId===speakingId)next()};
     speechSynthesis.speak(u);
   }
   $('voiceBtn').classList.add('on');
@@ -489,12 +497,13 @@ $('repeatBtn').addEventListener('click',()=>{cleanup();renderStep()});
 function cleanup(){
   if(breathTimer)clearInterval(breathTimer);breathTimer=null;
   if(vizTimer)clearTimeout(vizTimer);vizTimer=null;
-  speechSynthesis&&speechSynthesis.cancel();
+  stopSpeaking();
 }
 
 $('voiceBtn').addEventListener('click',()=>{
   if(!window.speechSynthesis)return;
-  if(speechSynthesis.speaking){speechSynthesis.cancel();$('voiceBtn').classList.remove('on');return}
+  // If speaking or between segments (speakingId active), stop
+  if(speechSynthesis.speaking||$('voiceBtn').classList.contains('on')){stopSpeaking();return}
   const sid=STEP_IDS[curStep];
   const txt=pick(V[sid].voice);
   speak(txt);
@@ -567,7 +576,7 @@ function makeBrainSVG(){
 function initBreathUI(){
   const el=$('breathUI');if(!el)return;
   el.innerHTML=`<div class="breath-ui">
-    <div class="breath-circle" id="bCircle"><div class="breath-label" id="bLabel">Listo</div><div class="breath-timer" id="bTime">0.0</div></div>
+    <div class="breath-area"><div class="breath-circle" id="bCircle"><div class="breath-label" id="bLabel">Listo</div><div class="breath-timer" id="bTime">0.0</div></div></div>
     <div class="breath-stats"><span>Inhalación<div class="val" id="bInT">—</div></span><span>Exhalación<div class="val" id="bOutT">—</div></span><span>Ciclos<div class="val" id="bCycles">0</div></span></div>
     <div class="breath-hint">Mantén pulsado cada botón mientras realizas la acción</div>
     <div class="breath-btns">
@@ -576,20 +585,20 @@ function initBreathUI(){
     </div>
   </div>`;
 
-  const MIN_SIZE=80,MAX_SIZE=200,RATE=15; // px/sec growth/shrink rate
-  let phase=null,start=0,lastIn=0,lastOut=0,cycles=0,curSize=160,rafId=null;
+  const MIN_SCALE=0.5,MAX_SCALE=1.25,RATE=0.08; // scale units/sec
+  let phase=null,start=0,lastIn=0,lastOut=0,cycles=0,curScale=1,rafId=null;
   const circle=$('bCircle'),label=$('bLabel'),timer=$('bTime');
 
-  function setCircleSize(s){curSize=s;circle.style.width=s+'px';circle.style.height=s+'px'}
+  function setScale(s){curScale=s;circle.style.transform='scale('+s+')'}
 
   function tick(){
     if(!phase){cancelAnimationFrame(rafId);rafId=null;return}
     const elapsed=(Date.now()-start)/1000;
     timer.textContent=elapsed.toFixed(1);
     if(phase==='in'){
-      const s=Math.min(MAX_SIZE,curSize+RATE/60);setCircleSize(s);
+      const s=Math.min(MAX_SCALE,curScale+RATE/60);setScale(s);
     }else if(phase==='out'){
-      const s=Math.max(MIN_SIZE,curSize-RATE/60);setCircleSize(s);
+      const s=Math.max(MIN_SCALE,curScale-RATE/60);setScale(s);
     }
     rafId=requestAnimationFrame(tick);
   }
@@ -823,9 +832,25 @@ $('installBtn').addEventListener('click',()=>{
 });
 window.addEventListener('appinstalled',()=>{$('installBtn').classList.add('hidden')});
 
+// ========== STARFIELD ==========
+function initStars(){
+  const sf=$('starfield');if(!sf)return;
+  const count=80;const w=window.innerWidth,h=window.innerHeight;
+  let html='';
+  for(let i=0;i<count;i++){
+    const x=Math.random()*100;const y=Math.random()*100;
+    const size=Math.random()*2+0.5;
+    const opacity=Math.random()*0.5+0.15;
+    const dur=Math.random()*4+3;
+    const delay=Math.random()*5;
+    html+=`<div style="position:absolute;left:${x}%;top:${y}%;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,${opacity});animation:twinkle ${dur}s ease-in-out ${delay}s infinite"></div>`;
+  }
+  sf.innerHTML=html;
+}
+
 // ========== INIT ==========
 D.name?goHome():show('onboarding');
-window.addEventListener('load',()=>{initSW();drawPixelHeart()});
+window.addEventListener('load',()=>{initSW();drawPixelHeart();initStars()});
 })();
 </script>
 </body>
