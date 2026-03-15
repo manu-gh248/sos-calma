@@ -116,9 +116,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* Breathing UI */
 .breath-ui{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;animation:scaleIn .6s ease}
-.breath-circle{width:160px;height:160px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:all .3s ease;background:var(--asoft)}
-.breath-circle.inhaling{animation:breatheIn 4s ease-in-out;border-color:var(--blue);background:var(--bsoft)}
-.breath-circle.exhaling{animation:breatheOut 6s ease-in-out;border-color:var(--green);background:rgba(46,204,113,.08)}
+.breath-circle{width:160px;height:160px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:width .15s ease,height .15s ease,border-color .3s,background .3s;background:var(--asoft)}
+.breath-circle.inhaling{border-color:var(--blue);background:var(--bsoft)}
+.breath-circle.exhaling{border-color:var(--green);background:rgba(46,204,113,.08)}
 .breath-circle.holding{border-color:var(--orange);background:rgba(244,162,97,.08)}
 .breath-label{font-size:18px;font-weight:700}
 .breath-timer{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -255,7 +255,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         <span>made with <canvas id="pixelHeart" width="16" height="14" class="credits-heart" style="vertical-align:middle"></canvas> by <strong>LIDERAPIA</strong> team</span>
         <span class="version-tag">v2.1.0</span>
     </div>
-    <button class="btn btn-g" id="checkUpdateBtn" style="font-size:11px;margin-top:-16px">🔄 Buscar actualizaciones</button>
+    <button class="btn btn-p hidden" id="installBtn" style="width:100%;max-width:280px">📲 Instalar en mi móvil</button>
+    <button class="btn btn-g" id="checkUpdateBtn" style="font-size:11px;margin-top:-8px">🔄 Buscar actualizaciones</button>
 </div>
 
 <!-- PROTOCOL -->
@@ -335,7 +336,7 @@ visualize: {
   title:["Visualización tridimensional.","Mapea tu rostro con la mente.","Escaneo espacial interno.","Geometría interna.","Visualiza espacios dentro de ti.","Recorre tu rostro mentalmente.","Crea un mapa 3D interno.","Explora distancias internas.","Visualización de calma.","Esculpe calma con tu imaginación."],
   exp:["Este ejercicio genera frecuencias Alfa más rápido que meditar o hacer deporte. Al imaginar espacios tridimensionales dentro de tu propio cuerpo, tu cerebro cambia su patrón eléctrico hacia la calma de forma casi instantánea.","La imaginación espacial activa regiones cerebrales que compiten con las zonas de alerta. Al pensar en tres dimensiones sobre espacios que te contienen, las frecuencias de calma se disparan.","Tu cerebro no puede estar en hiperalerta y en pensamiento espacial al mismo tiempo. Al forzar la visualización tridimensional, desplazas las frecuencias de estrés automáticamente.","Cuando imaginas distancias dentro de tu propio cuerpo, activas la corteza parietal — la zona del cerebro que procesa el espacio. Esto desactiva la amígdala, que es la generadora de miedo.","Es el atajo neurocientífico más directo hacia la calma. No necesitas creer en nada, solo imaginar distancias reales dentro de tu propia anatomía.","Visualizar espacios dentro de tu cuerpo es como ponerle un espejo a tu cerebro. Se autoobserva, se autorregula, y genera frecuencias Alfa sin esfuerzo.","Este ejercicio engaña a tu cerebro de la forma más elegante posible: lo pone a trabajar en algo que requiere calma para procesarse. Y la calma llega sola.","La neurociencia llama a esto visualización propioceptiva. Suena sofisticado, pero es simple: imagina espacios dentro de tu cara y tu cerebro se calma.","Es contraintuitivo: para calmarte no necesitas pensar en algo bonito. Necesitas imaginar distancias geométricas dentro de tu propia cabeza. Tu cerebro hace el resto.","Otro camino al mismo efecto: mirar el horizonte en la naturaleza. La visualización tridimensional — sea interna o externa — calma las frecuencias cerebrales."],
   instr:["Cierra los ojos. Te iré guiando paso a paso. En cada indicación, imagina esa distancia o espacio durante unos segundos. Usa el deslizante para ajustar el tiempo entre indicaciones."],
-  voice:["Cierra los ojos... Voy a guiarte... Imagina el espacio entre tus dos orejas... Siente esa distancia...... Ahora la distancia entre la punta de tu nariz y tu barbilla...... La distancia entre tu ojo izquierdo y tu barbilla...... Ahora tu ojo derecho y tu barbilla...... Imagina la columna de aire dentro de tu nariz...... El espacio que ocupa tu lengua en tu boca...... La distancia entre tu ceja derecha y la punta de tu nariz...... Tu ceja izquierda y la punta de tu nariz...... Y de nuevo... el espacio entre tus dos orejas...... Abre los ojos."]
+  voice:["Cierra los ojos... Voy a guiarte...[PAUSE]Imagina el espacio entre tus dos orejas... Siente esa distancia...[PAUSE]Ahora... la distancia entre la punta de tu nariz y tu barbilla...[PAUSE]La distancia entre tu ojo izquierdo y tu barbilla...[PAUSE]Ahora tu ojo derecho y tu barbilla...[PAUSE]Imagina la columna de aire dentro de tu nariz...[PAUSE]El espacio que ocupa tu lengua en tu boca...[PAUSE]La distancia entre tu ceja derecha y la punta de tu nariz...[PAUSE]Tu ceja izquierda y la punta de tu nariz...[PAUSE]Y de nuevo... el espacio entre tus dos orejas...[PAUSE]Muy bien... Abre los ojos."]
 },
 identify: {
   title:["Identifica beneficio y límite.","Ponle nombre y fecha.","¿Qué ganas? ¿Cuándo acaba?","Busca el para qué y el hasta cuándo.","Define beneficio y horizonte.","Ancla tu estrés en el tiempo.","Dale sentido y ponle fecha.","Transforma estrés en inversión.","¿Cuál es el retorno? ¿Cuál es el plazo?","Haz las dos preguntas clave."],
@@ -400,26 +401,33 @@ function speak(text,cb){
   if(!window.speechSynthesis)return cb&&cb();
   speechSynthesis.cancel();
   if(!esVoice)findVoice();
-  // Split on ... for pauses, detect emphasis markers
-  const parts=text.split('...').map(s=>s.trim()).filter(Boolean);
+  // Split on [PAUSE] first (long pauses), then ... (short pauses)
+  // Build a flat list of {text, longPauseAfter}
+  const segments=[];
+  text.split('[PAUSE]').forEach((block,bi,arr)=>{
+    const subs=block.split('...').map(s=>s.trim()).filter(Boolean);
+    subs.forEach((s,si)=>{
+      const isLastInBlock=si===subs.length-1&&bi<arr.length-1;
+      segments.push({text:s,longPause:isLastInBlock});
+    });
+  });
   let i=0;
   function next(){
-    if(i>=parts.length){$('voiceBtn').classList.remove('on');return cb&&cb()}
-    const seg=parts[i];
-    // Detect if segment is a key phrase (short = emphasis, question = rising pitch)
-    const isQuestion=seg.endsWith('?');
-    const isShort=seg.split(' ').length<=5;
+    if(i>=segments.length){$('voiceBtn').classList.remove('on');return cb&&cb()}
+    const seg=segments[i];
+    const txt=seg.text;
+    const isQuestion=txt.endsWith('?');
+    const isShort=txt.split(' ').length<=5;
     const isFirst=i===0;
-    const u=new SpeechSynthesisUtterance(seg);
+    const u=new SpeechSynthesisUtterance(txt);
     u.lang='es-ES';u.volume=1;
     if(esVoice)u.voice=esVoice;
-    // Vary prosody for expressiveness
-    if(isFirst){u.rate=0.78;u.pitch=1.1}      // opening: slower, slightly higher
-    else if(isQuestion){u.rate=0.85;u.pitch=1.18}  // questions: lift pitch
-    else if(isShort){u.rate=0.72;u.pitch=1.08}      // key phrases: slow and deliberate
-    else{u.rate=0.84;u.pitch=1.02+Math.random()*0.06} // normal: slight random variation
-    // Pause duration: longer after short emphatic phrases, shorter in flow
-    const pauseMs=isShort?800:isQuestion?700:500;
+    if(isFirst){u.rate=0.78;u.pitch=1.1}
+    else if(isQuestion){u.rate=0.85;u.pitch=1.18}
+    else if(isShort){u.rate=0.72;u.pitch=1.08}
+    else{u.rate=0.84;u.pitch=1.02+Math.random()*0.06}
+    // Long pause (4.5s) after [PAUSE] markers, normal pauses otherwise
+    const pauseMs=seg.longPause?4500:isShort?800:isQuestion?700:500;
     u.onend=()=>{i++;setTimeout(next,pauseMs)};
     u.onerror=()=>{i++;next()};
     speechSynthesis.speak(u);
@@ -568,28 +576,47 @@ function initBreathUI(){
     </div>
   </div>`;
 
-  let phase=null,start=0,lastIn=0,lastOut=0,cycles=0;
+  const MIN_SIZE=80,MAX_SIZE=200,RATE=15; // px/sec growth/shrink rate
+  let phase=null,start=0,lastIn=0,lastOut=0,cycles=0,curSize=160,rafId=null;
   const circle=$('bCircle'),label=$('bLabel'),timer=$('bTime');
+
+  function setCircleSize(s){curSize=s;circle.style.width=s+'px';circle.style.height=s+'px'}
+
+  function tick(){
+    if(!phase){cancelAnimationFrame(rafId);rafId=null;return}
+    const elapsed=(Date.now()-start)/1000;
+    timer.textContent=elapsed.toFixed(1);
+    if(phase==='in'){
+      const s=Math.min(MAX_SIZE,curSize+RATE/60);setCircleSize(s);
+    }else if(phase==='out'){
+      const s=Math.max(MIN_SIZE,curSize-RATE/60);setCircleSize(s);
+    }
+    rafId=requestAnimationFrame(tick);
+  }
 
   function startPhase(p){
     if(phase===p)return;
-    if(phase==='in')lastIn=((Date.now()-start)/1000);
-    if(phase==='out'){lastOut=((Date.now()-start)/1000);cycles++;$('bCycles').textContent=cycles}
+    // Record previous phase
+    if(phase==='in'){lastIn=(Date.now()-start)/1000}
+    if(phase==='out'){lastOut=(Date.now()-start)/1000;cycles++;$('bCycles').textContent=cycles}
     phase=p;start=Date.now();
     circle.className='breath-circle '+(p==='in'?'inhaling':'exhaling');
     label.textContent=p==='in'?'Inhalando...':'Exhalando...';
-    if(p==='in')$('bInBtn').classList.add('active-in');else $('bInBtn').classList.remove('active-in');
-    if(p==='out')$('bOutBtn').classList.add('active-out');else $('bOutBtn').classList.remove('active-out');
+    $('bInBtn').classList.toggle('active-in',p==='in');
+    $('bOutBtn').classList.toggle('active-out',p==='out');
     if(breathTimer)clearInterval(breathTimer);
-    breathTimer=setInterval(()=>{timer.textContent=((Date.now()-start)/1000).toFixed(1)},100);
+    if(!rafId)rafId=requestAnimationFrame(tick);
   }
   function stopPhase(){
     if(!phase)return;
-    if(phase==='in'){lastIn=((Date.now()-start)/1000);$('bInT').textContent=lastIn.toFixed(1)+'s'}
-    if(phase==='out'){lastOut=((Date.now()-start)/1000);$('bOutT').textContent=lastOut.toFixed(1)+'s';cycles++;$('bCycles').textContent=cycles}
-    phase=null;if(breathTimer)clearInterval(breathTimer);breathTimer=null;
+    if(phase==='in'){lastIn=(Date.now()-start)/1000;$('bInT').textContent=lastIn.toFixed(1)+'s'}
+    if(phase==='out'){lastOut=(Date.now()-start)/1000;$('bOutT').textContent=lastOut.toFixed(1)+'s';cycles++;$('bCycles').textContent=cycles}
+    phase=null;
+    if(breathTimer){clearInterval(breathTimer);breathTimer=null}
+    if(rafId){cancelAnimationFrame(rafId);rafId=null}
     circle.className='breath-circle';label.textContent='Listo';
     $('bInBtn').classList.remove('active-in');$('bOutBtn').classList.remove('active-out');
+    // Keep circle at its current size — don't reset
   }
 
   ['mousedown','touchstart'].forEach(ev=>{
@@ -778,6 +805,23 @@ function checkForUpdates(){
 }
 
 $('checkUpdateBtn').addEventListener('click',checkForUpdates);
+
+// ========== PWA INSTALL PROMPT ==========
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  $('installBtn').classList.remove('hidden');
+});
+$('installBtn').addEventListener('click',()=>{
+  if(!deferredInstallPrompt)return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted')$('installBtn').classList.add('hidden');
+    deferredInstallPrompt=null;
+  });
+});
+window.addEventListener('appinstalled',()=>{$('installBtn').classList.add('hidden')});
 
 // ========== INIT ==========
 D.name?goHome():show('onboarding');
