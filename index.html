@@ -29,7 +29,8 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
 #skyBg{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(175deg,#05080f 0%,#0a0e1a 25%,#0d1117 50%,#0a0f1a 75%,#080c15 100%)}
 #skyBg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 15%,rgba(93,173,236,.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(168,85,247,.05) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(46,204,113,.03) 0%,transparent 60%)}
 #starfield{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
-.screen{display:none;min-height:100vh;min-height:100dvh;padding:24px;animation:fadeUp .5s ease;position:relative;z-index:2}
+#appWrap{position:relative;z-index:2;min-height:100vh}
+.screen{display:none;min-height:100vh;min-height:100dvh;padding:24px;animation:fadeUp .5s ease}
 .screen.active{display:flex;flex-direction:column}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -254,6 +255,7 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
 <body>
 <div id="skyBg"></div>
 <div id="starfield"></div>
+<div id="appWrap">
 <!-- ONBOARDING -->
 <div id="onboarding" class="screen">
     <div class="ob-icon">🔴</div>
@@ -324,6 +326,7 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
     <div class="input-group"><label>Tu nombre</label><input type="text" id="setName"></div>
     <button class="btn btn-p" id="saveSet">Guardar</button>
 </div>
+</div><!-- /appWrap -->
 
 <script>
 (function(){
