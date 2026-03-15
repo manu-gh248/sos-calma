@@ -14,7 +14,7 @@
     <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
---bg:#0a0a0a;--bg2:#111;--card:#151515;--card2:#1c1c1c;
+--bg:rgba(10,10,10,.6);--bg2:rgba(17,17,17,.5);--card:rgba(18,18,24,.55);--card2:rgba(28,28,35,.5);
 --text:#f0f0f0;--muted:#888;--dim:#555;
 --accent:#e63946;--aglow:rgba(230,57,70,.3);--asoft:rgba(230,57,70,.1);
 --green:#2ecc71;--gglow:rgba(46,204,113,.3);
@@ -50,6 +50,11 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
 @keyframes labelSwitch{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.95)}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.1)}56%{transform:scale(1)}}
 @keyframes twinkle{0%,100%{opacity:1}50%{opacity:.15}}
+@keyframes shootingStar{0%{transform:translateX(0) translateY(0) rotate(-35deg);opacity:1}70%{opacity:1}100%{transform:translateX(300px) translateY(180px) rotate(-35deg);opacity:0}}
+@keyframes astronautDrift{0%{transform:translate(0,0) rotate(0deg);opacity:0}5%{opacity:.6}50%{transform:translate(calc(50vw - 20px),calc(-30vh)) rotate(25deg);opacity:.5}95%{opacity:.4}100%{transform:translate(calc(100vw),calc(-10vh)) rotate(45deg);opacity:0}}
+.shooting-star{position:absolute;width:80px;height:1.5px;background:linear-gradient(90deg,rgba(255,255,255,.8),rgba(255,255,255,0));border-radius:1px;animation:shootingStar 1.2s linear forwards;pointer-events:none}
+.shooting-star::before{content:'';position:absolute;left:0;top:-1px;width:4px;height:4px;border-radius:50%;background:white;box-shadow:0 0 6px 2px rgba(255,255,255,.6)}
+.astronaut{position:fixed;z-index:1;pointer-events:none;animation:astronautDrift 25s linear forwards;opacity:0;image-rendering:pixelated}
 
 /* --- Components --- */
 .input-group{width:100%;max-width:320px}
@@ -95,16 +100,21 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--orange));border-radius:2px;transition:width .5s ease}
 .prog-txt{font-size:12px;color:var(--dim);text-align:right}
 
-/* Intensity */
+/* Intensity slider */
 .int-sec{text-align:center}
 .int-sec h3{font-size:16px;font-weight:600;margin-bottom:8px}
 .int-sec p{font-size:13px;color:var(--muted);margin-bottom:20px}
-.int-scale{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.int-btn{width:48px;height:48px;border-radius:12px;border:1px solid #222;background:var(--card);color:var(--muted);font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;transition:var(--t)}
-.int-btn.sel{border-color:var(--accent);background:var(--asoft);color:var(--accent);transform:scale(1.1)}
+.int-slider-wrap{width:100%;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.int-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.int-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:4px;outline:none;transition:background .3s}
+.int-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 12px rgba(0,0,0,.4);transition:background .3s,box-shadow .3s;background:var(--accent)}
+.int-slider::-moz-range-thumb{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 12px rgba(0,0,0,.4);background:var(--accent)}
+.int-slider::-moz-range-track{height:8px;border-radius:4px}
+.int-val{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;transition:color .3s}
+.int-feeling{font-size:14px;font-weight:600;min-height:24px;transition:color .3s}
 
 /* Step Card */
-.step-card{background:rgba(21,21,21,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--r);padding:28px 24px;border:1px solid rgba(255,255,255,.05);animation:fadeUp .5s ease}
+.step-card{background:rgba(14,14,22,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:var(--r);padding:28px 24px;border:1px solid rgba(255,255,255,.06);animation:fadeUp .5s ease}
 .step-num{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .step-num .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
 .step-title{font-size:21px;font-weight:700;margin-bottom:16px;line-height:1.3;background:linear-gradient(135deg,var(--text),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -184,14 +194,14 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
 .voice-btn.on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px var(--aglow)}
 
 /* Bottom actions */
-.step-act{position:fixed;bottom:0;left:0;right:0;padding:16px 24px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#080c15 30%);display:flex;gap:12px;z-index:90}
+.step-act{position:fixed;bottom:0;left:0;right:0;padding:16px 24px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(5,8,15,.85) 40%);display:flex;gap:12px;z-index:90}
 .step-act .btn{flex:1}
 
 /* --- Stats --- */
 #stats{gap:24px}
 .stats-hd{display:flex;align-items:center;justify-content:space-between}
 .stats-hd h2{font-size:20px;font-weight:700}
-.stat-card{background:rgba(21,21,21,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.05)}
+.stat-card{background:rgba(14,14,22,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.06)}
 .stat-card h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .stat-val{font-size:32px;font-weight:700}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -273,9 +283,14 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
     <div class="prog-bar"><div class="prog-fill" id="progBar"></div></div>
     <div class="prog-txt" id="progTxt"></div>
     <div id="intSec" class="int-sec">
-        <h3>¿Cuánto estrés sientes ahora?</h3><p>Selecciona la intensidad de 1 a 10</p>
-        <div class="int-scale" id="intScale"></div>
-        <div style="margin-top:16px"><button class="btn btn-p" id="startProto" disabled>Empezar protocolo</button></div>
+        <h3>¿Cuánto estrés sientes ahora?</h3><p>Desliza para indicar tu nivel</p>
+        <div class="int-slider-wrap">
+            <div class="int-val" id="intVal">5</div>
+            <div class="int-feeling" id="intFeeling"></div>
+            <input type="range" min="1" max="10" value="5" class="int-slider" id="intSlider">
+            <div class="int-labels"><span>Solo un poquito</span><span>No puedo más</span></div>
+        </div>
+        <div style="margin-top:20px"><button class="btn btn-p" id="startProto">Empezar protocolo</button></div>
     </div>
     <div id="stepBox" class="hidden"></div>
     <button class="voice-btn hidden" id="voiceBtn" title="Leer en voz alta">🔊</button>
@@ -474,16 +489,34 @@ function startProto(){
   show('protocol');showIntensity();
 }
 
+const INT_FEELINGS=['','Apenas algo','Un poco tenso','Noto la tensión','Bastante estresado','En el límite','Me sobrepasa','Mucha presión','Casi al máximo','Al borde','No puedo más'];
+function intColor(v){
+  // green(1) -> yellow(5) -> red(10)
+  const r=v<=5?Math.round(46+(209*((v-1)/4))):255;
+  const g=v<=5?204:Math.round(204-(174*((v-5)/5)));
+  const b2=v<=5?Math.round(113-(113*((v-1)/4))):30;
+  return `rgb(${r},${g},${b2})`;
+}
+function updateIntUI(v){
+  curInt=v;
+  const c=intColor(v);
+  $('intVal').textContent=v;$('intVal').style.color=c;
+  $('intFeeling').textContent=INT_FEELINGS[v];$('intFeeling').style.color=c;
+  const sl=$('intSlider');
+  sl.style.background=`linear-gradient(90deg,${intColor(1)} 0%,${intColor(5)} 50%,${intColor(10)} 100%)`;
+  sl.style.setProperty('--thumb-bg',c);
+  // Thumb color via inline style trick
+  const pct=((v-1)/9)*100;
+  sl.style.background=`linear-gradient(90deg,rgba(46,204,113,.8) 0%,rgba(244,162,97,.8) 50%,rgba(230,57,70,.8) 100%)`;
+}
 function showIntensity(){
   $('intSec').classList.remove('hidden');$('stepBox').classList.add('hidden');
   $('stepAct').classList.add('hidden');$('voiceBtn').classList.add('hidden');
-  $('startProto').disabled=true;$('progBar').style.width='0%';$('progTxt').textContent='';
-  const sc=$('intScale');sc.innerHTML='';
-  for(let i=1;i<=10;i++){
-    const b=document.createElement('button');b.className='int-btn';b.textContent=i;
-    b.addEventListener('click',()=>{sc.querySelectorAll('.int-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');curInt=i;$('startProto').disabled=false});
-    sc.appendChild(b);
-  }
+  $('progBar').style.width='0%';$('progTxt').textContent='';
+  curInt=5;
+  const sl=$('intSlider');sl.value=5;
+  sl.addEventListener('input',()=>updateIntUI(parseInt(sl.value)));
+  updateIntUI(5);
 }
 
 $('startProto').addEventListener('click',()=>{
@@ -837,22 +870,89 @@ window.addEventListener('appinstalled',()=>{$('installBtn').classList.add('hidde
 // ========== STARFIELD ==========
 function initStars(){
   const sf=$('starfield');if(!sf)return;
-  const count=80;const w=window.innerWidth,h=window.innerHeight;
   let html='';
-  for(let i=0;i<count;i++){
+  const colors=['255,255,255','200,220,255','255,230,200','180,200,255'];
+  for(let i=0;i<90;i++){
     const x=Math.random()*100;const y=Math.random()*100;
     const size=Math.random()*2+0.5;
     const opacity=Math.random()*0.5+0.15;
     const dur=Math.random()*4+3;
     const delay=Math.random()*5;
-    html+=`<div style="position:absolute;left:${x}%;top:${y}%;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,${opacity});animation:twinkle ${dur}s ease-in-out ${delay}s infinite"></div>`;
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    const bright=Math.random()<0.08; // ~8% are bright stars with glow
+    const glow=bright?`;box-shadow:0 0 ${4+Math.random()*6}px rgba(${col},0.6)':'';
+    const sz=bright?size+1.5:size;
+    html+=`<div style="position:absolute;left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(${col},${bright?0.8:opacity});animation:twinkle ${dur}s ease-in-out ${delay}s infinite${glow}"></div>`;
   }
   sf.innerHTML=html;
 }
 
+// ========== SHOOTING STARS ==========
+function spawnShootingStar(){
+  const sf=$('starfield');if(!sf)return;
+  const star=document.createElement('div');
+  star.className='shooting-star';
+  star.style.left=Math.random()*60+'%';
+  star.style.top=Math.random()*40+'%';
+  star.style.width=(60+Math.random()*60)+'px';
+  sf.appendChild(star);
+  star.addEventListener('animationend',()=>star.remove());
+}
+function shootingStarLoop(){
+  spawnShootingStar();
+  setTimeout(shootingStarLoop,4000+Math.random()*8000); // every 4-12s
+}
+
+// ========== PIXEL ASTRONAUT ==========
+function drawPixelAstronaut(scale){
+  const P=scale||2;
+  const c=document.createElement('canvas');
+  c.width=12*P;c.height=18*P;c.style.width=(12*P)+'px';c.style.height=(18*P)+'px';
+  c.style.imageRendering='pixelated';
+  const x=c.getContext('2d');
+  function px(col,coords){x.fillStyle=col;coords.forEach(([cx,cy])=>x.fillRect(cx*P,cy*P,P,P))}
+  // Helmet (white/glass blue)
+  px('#eee',[[4,0],[5,0],[6,0],[7,0],[3,1],[8,1],[3,2],[8,2],[3,3],[8,3],[4,4],[5,4],[6,4],[7,4]]);
+  px('#6cf',[[4,1],[5,1],[6,1],[7,1],[4,2],[5,2],[6,2],[7,2],[4,3],[5,3],[6,3],[7,3]]);
+  // visor shine
+  px('#aef',[[5,1],[5,2]]);
+  // Body (white suit)
+  px('#ddd',[[4,5],[5,5],[6,5],[7,5],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[4,8],[5,8],[6,8],[7,8]]);
+  // Backpack (gray)
+  px('#888',[[2,5],[2,6],[2,7],[9,5],[9,6],[9,7]]);
+  // Belt (orange)
+  px('#f4a261',[[4,9],[5,9],[6,9],[7,9]]);
+  // Legs (white)
+  px('#ddd',[[4,10],[5,10],[6,10],[7,10],[4,11],[5,11],[6,11],[7,11]]);
+  // Boots (gray)
+  px('#999',[[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[3,13],[4,13],[7,13],[8,13]]);
+  // Arms (white) — spread out for floating pose
+  px('#ddd',[[1,6],[1,7],[0,7],[10,6],[10,7],[11,7]]);
+  // Gloves (gray)
+  px('#999',[[0,8],[11,8]]);
+  return c;
+}
+function spawnAstronaut(){
+  const scale=2+Math.floor(Math.random()*2); // 2x or 3x
+  const c=drawPixelAstronaut(scale);
+  const wrap=document.createElement('div');
+  wrap.className='astronaut';
+  wrap.appendChild(c);
+  wrap.style.bottom=Math.random()*40+10+'%';
+  wrap.style.left='-'+(14*scale)+'px';
+  const dur=20+Math.random()*15;
+  wrap.style.animationDuration=dur+'s';
+  document.body.appendChild(wrap);
+  wrap.addEventListener('animationend',()=>wrap.remove());
+}
+function astronautLoop(){
+  spawnAstronaut();
+  setTimeout(astronautLoop,30000+Math.random()*60000);
+}
+
 // ========== INIT ==========
 D.name?goHome():show('onboarding');
-window.addEventListener('load',()=>{initSW();drawPixelHeart();initStars()});
+window.addEventListener('load',()=>{initSW();drawPixelHeart();initStars();setTimeout(shootingStarLoop,2000);setTimeout(astronautLoop,10000)});
 })();
 </script>
 </body>
