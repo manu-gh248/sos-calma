@@ -12,1485 +12,663 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <title>SOS Calma</title>
     <style>
-        /* ============================================
-           CSS RESET & VARIABLES
-           ============================================ */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #0a0a0a;
-            --bg-card: #141414;
-            --bg-card-hover: #1a1a1a;
-            --text: #f0f0f0;
-            --text-muted: #888;
-            --text-dim: #555;
-            --accent: #e63946;
-            --accent-glow: rgba(230, 57, 70, 0.3);
-            --accent-soft: rgba(230, 57, 70, 0.1);
-            --green: #2ecc71;
-            --green-glow: rgba(46, 204, 113, 0.3);
-            --blue: #5dadec;
-            --orange: #f4a261;
-            --radius: 16px;
-            --radius-sm: 10px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        html, body {
-            height: 100%;
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* ============================================
-           SCREENS
-           ============================================ */
-        .screen {
-            display: none;
-            min-height: 100vh;
-            min-height: 100dvh;
-            padding: 24px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ============================================
-           ONBOARDING SCREEN
-           ============================================ */
-        #onboarding {
-            justify-content: center;
-            align-items: center;
-            gap: 32px;
-            text-align: center;
-        }
-
-        .onboarding-title {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .onboarding-sub {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            max-width: 320px;
-        }
-
-        .input-group {
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-align: left;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 18px;
-            background: var(--bg-card);
-            border: 1px solid #222;
-            border-radius: var(--radius-sm);
-            color: var(--text);
-            font-size: 16px;
-            font-family: var(--font);
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .input-group input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-soft);
-        }
-
-        /* ============================================
-           BUTTONS
-           ============================================ */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 28px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 15px;
-            font-weight: 600;
-            font-family: var(--font);
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #cf3340;
-            transform: translateY(-1px);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text);
-            border: 1px solid #222;
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .btn-success {
-            background: var(--green);
-            color: #fff;
-        }
-
-        .btn-success:hover {
-            background: #27ae60;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-muted);
-            padding: 10px 16px;
-            font-size: 13px;
-        }
-
-        .btn-ghost:hover {
-            color: var(--text);
-        }
-
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* ============================================
-           HOME SCREEN
-           ============================================ */
-        #home {
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        .home-greeting {
-            font-size: 15px;
-            color: var(--text-muted);
-        }
-
-        .emergency-btn-wrapper {
-            position: relative;
-        }
-
-        .emergency-btn {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            border: none;
-            background: radial-gradient(circle at 35% 35%, #ff4757, #c0392b);
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: var(--font);
-            cursor: pointer;
-            position: relative;
-            box-shadow:
-                0 0 40px var(--accent-glow),
-                0 8px 32px rgba(0,0,0,0.5),
-                inset 0 -4px 12px rgba(0,0,0,0.3),
-                inset 0 2px 6px rgba(255,255,255,0.15);
-            transition: var(--transition);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .emergency-btn:hover {
-            transform: scale(1.05);
-            box-shadow:
-                0 0 60px var(--accent-glow),
-                0 8px 32px rgba(0,0,0,0.5),
-                inset 0 -4px 12px rgba(0,0,0,0.3),
-                inset 0 2px 6px rgba(255,255,255,0.15);
-        }
-
-        .emergency-btn:active {
-            transform: scale(0.97);
-        }
-
-        .pulse-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            transform: translate(-50%, -50%);
-            animation: pulse 2.5s ease-out infinite;
-            pointer-events: none;
-        }
-
-        .pulse-ring:nth-child(2) {
-            animation-delay: 0.8s;
-        }
-
-        @keyframes pulse {
-            0% { width: 180px; height: 180px; opacity: 0.6; }
-            100% { width: 300px; height: 300px; opacity: 0; }
-        }
-
-        .home-footer {
-            display: flex;
-            gap: 16px;
-        }
-
-        .home-footer .btn-ghost {
-            font-size: 12px;
-        }
-
-        /* ============================================
-           PROTOCOL SCREEN
-           ============================================ */
-        #protocol {
-            gap: 24px;
-            padding-bottom: 120px;
-        }
-
-        .protocol-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .protocol-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-            line-height: 1;
-        }
-
-        /* Progress bar */
-        .progress-container {
-            width: 100%;
-            height: 4px;
-            background: #1a1a1a;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            color: var(--text-dim);
-            text-align: right;
-        }
-
-        /* Intensity selector */
-        .intensity-section {
-            text-align: center;
-        }
-
-        .intensity-section h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .intensity-section p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .intensity-scale {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .intensity-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            border: 1px solid #222;
-            background: var(--bg-card);
-            color: var(--text-muted);
-            font-size: 16px;
-            font-weight: 600;
-            font-family: var(--font);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .intensity-btn.selected {
-            border-color: var(--accent);
-            background: var(--accent-soft);
-            color: var(--accent);
-        }
-
-        .intensity-btn:hover {
-            border-color: #444;
-        }
-
-        /* Step card */
-        .step-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 28px 24px;
-            border: 1px solid #1e1e1e;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .step-number {
-            font-size: 12px;
-            color: var(--accent);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-        }
-
-        .step-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            line-height: 1.3;
-        }
-
-        .step-explanation {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-
-        .step-why {
-            background: rgba(93, 173, 236, 0.08);
-            border-left: 3px solid var(--blue);
-            padding: 14px 18px;
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            margin-bottom: 20px;
-        }
-
-        .step-why-label {
-            font-size: 11px;
-            color: var(--blue);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 6px;
-        }
-
-        .step-why p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        .step-instruction {
-            background: var(--accent-soft);
-            border-radius: var(--radius-sm);
-            padding: 18px;
-            margin-bottom: 20px;
-        }
-
-        .step-instruction-label {
-            font-size: 11px;
-            color: var(--accent);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-
-        .step-instruction p {
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        /* Visual element in step */
-        .step-visual {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .breathing-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent);
-        }
-
-        .breathing-circle.animating {
-            animation: breathe 8s ease-in-out infinite;
-        }
-
-        @keyframes breathe {
-            0%, 100% { transform: scale(0.7); border-color: var(--blue); color: var(--blue); }
-            12.5% { transform: scale(1); border-color: var(--accent); color: var(--accent); }
-            50% { transform: scale(1); border-color: var(--accent); color: var(--accent); }
-            62.5% { transform: scale(0.7); border-color: var(--blue); color: var(--blue); }
-        }
-
-        .body-scan-visual {
-            width: 80px;
-            height: 160px;
-            border: 2px solid #333;
-            border-radius: 40px 40px 20px 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-            animation: scan 3s ease-in-out infinite;
-        }
-
-        @keyframes scan {
-            0%, 100% { top: 0; }
-            50% { top: calc(100% - 3px); }
-        }
-
-        .vis-dots {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .vis-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--accent);
-            animation: dotPulse 1.5s ease-in-out infinite;
-        }
-
-        .vis-dot:nth-child(2) { animation-delay: 0.3s; background: var(--orange); }
-        .vis-dot:nth-child(3) { animation-delay: 0.6s; background: var(--blue); }
-        .vis-dot:nth-child(4) { animation-delay: 0.9s; background: var(--green); }
-        .vis-dot:nth-child(5) { animation-delay: 1.2s; background: var(--accent); }
-
-        @keyframes dotPulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.8); opacity: 1; }
-        }
-
-        /* Timer */
-        .timer-display {
-            font-size: 48px;
-            font-weight: 700;
-            text-align: center;
-            font-variant-numeric: tabular-nums;
-            color: var(--accent);
-            margin: 16px 0;
-        }
-
-        .timer-controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        /* Voice button */
-        .voice-btn {
-            position: fixed;
-            bottom: 90px;
-            right: 24px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: none;
-            background: var(--bg-card);
-            border: 1px solid #222;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 100;
-            transition: var(--transition);
-        }
-
-        .voice-btn.speaking {
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
-
-        /* Fixed bottom action */
-        .step-actions {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 16px 24px;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-            background: linear-gradient(transparent, var(--bg) 30%);
-            display: flex;
-            gap: 12px;
-            z-index: 90;
-        }
-
-        .step-actions .btn {
-            flex: 1;
-        }
-
-        /* ============================================
-           STATS SCREEN
-           ============================================ */
-        #stats {
-            gap: 24px;
-        }
-
-        .stats-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .stats-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid #1e1e1e;
-        }
-
-        .stat-card h4 {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        .stat-sub {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
-            border: 1px solid #1e1e1e;
-            font-size: 13px;
-        }
-
-        .history-date {
-            color: var(--text-muted);
-        }
-
-        .history-intensity {
-            background: var(--accent-soft);
-            color: var(--accent);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .history-time {
-            color: var(--text-dim);
-            font-size: 12px;
-        }
-
-        .freq-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 80px;
-            padding-top: 8px;
-        }
-
-        .freq-bar {
-            flex: 1;
-            background: var(--accent);
-            border-radius: 3px 3px 0 0;
-            min-height: 4px;
-            opacity: 0.7;
-            transition: var(--transition);
-        }
-
-        .freq-labels {
-            display: flex;
-            gap: 4px;
-            margin-top: 6px;
-        }
-
-        .freq-labels span {
-            flex: 1;
-            font-size: 9px;
-            color: var(--text-dim);
-            text-align: center;
-        }
-
-        .clear-data-section {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        /* ============================================
-           COMPLETION SCREEN
-           ============================================ */
-        #completion {
-            justify-content: center;
-            align-items: center;
-            gap: 24px;
-            text-align: center;
-        }
-
-        .completion-icon {
-            font-size: 64px;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .completion-title {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .completion-message {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.7;
-            max-width: 320px;
-        }
-
-        .completion-stat {
-            display: flex;
-            gap: 24px;
-            justify-content: center;
-        }
-
-        .completion-stat div {
-            text-align: center;
-        }
-
-        .completion-stat .val {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--green);
-        }
-
-        .completion-stat .label {
-            font-size: 11px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-
-        /* ============================================
-           UTILITIES
-           ============================================ */
-        .hidden { display: none !important; }
-
-        .text-accent { color: var(--accent); }
-        .text-green { color: var(--green); }
-        .text-blue { color: var(--blue); }
-
-        .mt-8 { margin-top: 8px; }
-        .mt-16 { margin-top: 16px; }
-        .mb-16 { margin-bottom: 16px; }
-
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
-        @media (min-width: 600px) {
-            .screen {
-                max-width: 480px;
-                margin: 0 auto;
-            }
-
-            .emergency-btn {
-                width: 200px;
-                height: 200px;
-            }
-
-            .pulse-ring {
-                width: 200px;
-                height: 200px;
-            }
-
-            @keyframes pulse {
-                0% { width: 200px; height: 200px; opacity: 0.6; }
-                100% { width: 340px; height: 340px; opacity: 0; }
-            }
-        }
-
-        @media (max-height: 600px) {
-            .emergency-btn {
-                width: 140px;
-                height: 140px;
-                font-size: 15px;
-            }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0a;--bg2:#111;--card:#151515;--card2:#1c1c1c;
+--text:#f0f0f0;--muted:#888;--dim:#555;
+--accent:#e63946;--aglow:rgba(230,57,70,.3);--asoft:rgba(230,57,70,.1);
+--green:#2ecc71;--gglow:rgba(46,204,113,.3);
+--blue:#5dadec;--bsoft:rgba(93,173,236,.1);
+--orange:#f4a261;--purple:#a855f7;
+--r:16px;--rs:10px;
+--t:.3s cubic-bezier(.4,0,.2,1);
+--font:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.screen{display:none;min-height:100vh;min-height:100dvh;padding:24px;animation:fadeUp .5s ease}
+.screen.active{display:flex;flex-direction:column}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px var(--aglow)}50%{box-shadow:0 0 40px var(--aglow),0 0 60px rgba(230,57,70,.15)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%{width:180px;height:180px;opacity:.5}100%{width:300px;height:300px;opacity:0}}
+@keyframes breatheIn{from{transform:scale(.6);opacity:.4}to{transform:scale(1);opacity:1}}
+@keyframes breatheOut{from{transform:scale(1);opacity:1}to{transform:scale(.6);opacity:.4}}
+@keyframes scan{0%,100%{top:5%}50%{top:90%}}
+@keyframes dotPulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(2);opacity:1}}
+@keyframes ripple{0%{transform:scale(0);opacity:.5}100%{transform:scale(4);opacity:0}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes rotateIn{from{opacity:0;transform:rotate(-10deg) scale(.9)}to{opacity:1;transform:rotate(0) scale(1)}}
+
+/* --- Components --- */
+.input-group{width:100%;max-width:320px}
+.input-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px;text-align:left}
+.input-group input{width:100%;padding:14px 18px;background:var(--card);border:1px solid #222;border-radius:var(--rs);color:var(--text);font-size:16px;font-family:var(--font);outline:none;transition:var(--t)}
+.input-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--asoft)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;transition:var(--t);text-decoration:none;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.2) 0%,transparent 70%);opacity:0;transition:.3s}
+.btn:active::after{opacity:1}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#cf3340;transform:translateY(-1px)}
+.btn-s{background:var(--card);color:var(--text);border:1px solid #222}
+.btn-s:hover{background:var(--card2)}
+.btn-ok{background:var(--green);color:#fff}
+.btn-ok:hover{background:#27ae60}
+.btn-g{background:transparent;color:var(--muted);padding:10px 16px;font-size:13px}
+.btn-g:hover{color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* --- Onboarding --- */
+#onboarding{justify-content:center;align-items:center;gap:32px;text-align:center}
+.ob-icon{font-size:56px;animation:float 3s ease-in-out infinite}
+.ob-title{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.ob-sub{color:var(--muted);font-size:15px;line-height:1.6;max-width:320px}
+
+/* --- Home --- */
+#home{justify-content:center;align-items:center;gap:40px;text-align:center}
+.home-hi{font-size:15px;color:var(--muted)}
+.sos-wrap{position:relative}
+.sos-ring{position:absolute;top:50%;left:50%;width:180px;height:180px;border-radius:50%;border:2px solid var(--accent);transform:translate(-50%,-50%);animation:pulse 2.5s ease-out infinite;pointer-events:none}
+.sos-ring:nth-child(2){animation-delay:.8s}
+.sos-btn{width:180px;height:180px;border-radius:50%;border:none;background:radial-gradient(circle at 35% 35%,#ff4757,#c0392b);color:#fff;font-size:18px;font-weight:700;font-family:var(--font);cursor:pointer;box-shadow:0 0 40px var(--aglow),0 8px 32px rgba(0,0,0,.5),inset 0 -4px 12px rgba(0,0,0,.3),inset 0 2px 6px rgba(255,255,255,.15);transition:var(--t);text-transform:uppercase;letter-spacing:2px;animation:glow 3s ease-in-out infinite}
+.sos-btn:hover{transform:scale(1.05)}
+.sos-btn:active{transform:scale(.97)}
+.home-ft{display:flex;gap:16px}
+
+/* --- Protocol --- */
+#protocol{gap:20px;padding-bottom:130px}
+.proto-hd{display:flex;align-items:center;justify-content:space-between}
+.proto-hd h2{font-size:20px;font-weight:700}
+.back{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:8px;line-height:1}
+.prog-bar{width:100%;height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--orange));border-radius:2px;transition:width .5s ease}
+.prog-txt{font-size:12px;color:var(--dim);text-align:right}
+
+/* Intensity */
+.int-sec{text-align:center}
+.int-sec h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.int-sec p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.int-scale{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.int-btn{width:48px;height:48px;border-radius:12px;border:1px solid #222;background:var(--card);color:var(--muted);font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;transition:var(--t)}
+.int-btn.sel{border-color:var(--accent);background:var(--asoft);color:var(--accent);transform:scale(1.1)}
+
+/* Step Card */
+.step-card{background:var(--card);border-radius:var(--r);padding:28px 24px;border:1px solid #1e1e1e;animation:fadeUp .5s ease}
+.step-num{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.step-num .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.step-title{font-size:21px;font-weight:700;margin-bottom:16px;line-height:1.3;background:linear-gradient(135deg,var(--text),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.step-exp{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.step-why{background:var(--bsoft);border-left:3px solid var(--blue);padding:14px 18px;border-radius:0 var(--rs) var(--rs) 0;margin-bottom:20px;animation:slideInLeft .6s ease}
+.step-why-l{font-size:11px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.step-why p{font-size:13px;color:var(--muted);line-height:1.6}
+.step-do{background:var(--asoft);border-radius:var(--rs);padding:18px;margin-bottom:20px;animation:slideInRight .6s ease .1s both}
+.step-do-l{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.step-do p{font-size:14px;line-height:1.6}
+
+/* Visuals */
+.step-vis{display:flex;justify-content:center;margin:20px 0;animation:scaleIn .6s ease}
+
+/* Breathing UI */
+.breath-ui{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;animation:scaleIn .6s ease}
+.breath-circle{width:160px;height:160px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;transition:all .3s ease;background:var(--asoft)}
+.breath-circle.inhaling{animation:breatheIn 4s ease-in-out;border-color:var(--blue);background:var(--bsoft)}
+.breath-circle.exhaling{animation:breatheOut 6s ease-in-out;border-color:var(--green);background:rgba(46,204,113,.08)}
+.breath-circle.holding{border-color:var(--orange);background:rgba(244,162,97,.08)}
+.breath-label{font-size:18px;font-weight:700}
+.breath-timer{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums}
+.breath-hint{font-size:12px;color:var(--muted);text-align:center;max-width:280px;line-height:1.5}
+.breath-btns{display:flex;gap:12px;width:100%;max-width:320px}
+.breath-hold-btn{flex:1;padding:16px;border-radius:var(--rs);border:2px solid #333;background:var(--card);color:var(--text);font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;transition:var(--t);text-align:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.breath-hold-btn.active-in{border-color:var(--blue);background:var(--bsoft);color:var(--blue)}
+.breath-hold-btn.active-out{border-color:var(--green);background:rgba(46,204,113,.08);color:var(--green)}
+.breath-stats{display:flex;gap:16px;font-size:12px;color:var(--muted)}
+.breath-stats span{display:flex;flex-direction:column;align-items:center;gap:2px}
+.breath-stats .val{font-size:18px;font-weight:700;color:var(--text)}
+
+/* Viz step */
+.viz-ui{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+.viz-body{position:relative;width:100px;height:200px;animation:scaleIn .6s ease}
+.viz-body svg{width:100%;height:100%}
+.viz-indicator{position:absolute;width:100%;height:4px;background:var(--accent);box-shadow:0 0 12px var(--aglow);border-radius:2px;transition:top 1s ease;left:0}
+.viz-label{font-size:16px;font-weight:600;text-align:center;min-height:48px;animation:fadeIn .4s ease}
+.viz-delay{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);width:100%;max-width:300px}
+.viz-delay input[type=range]{flex:1;accent-color:var(--accent)}
+.viz-delay-val{font-weight:600;color:var(--text);min-width:28px;text-align:right}
+
+/* Body SVG parts highlighting */
+.body-part{fill:none;stroke:#333;stroke-width:1.5;transition:all .8s ease}
+.body-part.active{stroke:var(--accent);stroke-width:2.5;filter:drop-shadow(0 0 6px var(--aglow))}
+
+/* Naming exercise */
+.naming-ui{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+.naming-counter{font-size:64px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;animation:scaleIn .3s ease}
+.naming-target{font-size:13px;color:var(--muted)}
+.naming-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:340px}
+.naming-tag{padding:6px 14px;border-radius:20px;background:var(--card);border:1px solid #222;font-size:12px;color:var(--muted);animation:scaleIn .3s ease}
+.naming-input{width:100%;max-width:300px;padding:14px 18px;background:var(--card);border:2px solid #333;border-radius:var(--rs);color:var(--text);font-size:16px;font-family:var(--font);outline:none;text-align:center;transition:var(--t)}
+.naming-input:focus{border-color:var(--accent)}
+
+/* Anchor */
+.anchor-ui{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;width:100%}
+.anchor-orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(46,204,113,.3),rgba(93,173,236,.2),rgba(168,85,247,.15));animation:float 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:36px}
+.anchor-timer{font-size:48px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums}
+
+/* Dots animation */
+.anim-dots{display:flex;gap:6px;align-items:center}
+.anim-dot{width:10px;height:10px;border-radius:50%;animation:dotPulse 1.5s ease-in-out infinite}
+.anim-dot:nth-child(1){background:var(--accent);animation-delay:0s}
+.anim-dot:nth-child(2){background:var(--orange);animation-delay:.2s}
+.anim-dot:nth-child(3){background:var(--blue);animation-delay:.4s}
+.anim-dot:nth-child(4){background:var(--green);animation-delay:.6s}
+.anim-dot:nth-child(5){background:var(--purple);animation-delay:.8s}
+
+/* Wave animation */
+.wave-wrap{height:60px;display:flex;align-items:flex-end;gap:3px}
+.wave-bar{width:4px;background:var(--accent);border-radius:2px;animation:waveAnim 1.2s ease-in-out infinite}
+@keyframes waveAnim{0%,100%{height:8px;opacity:.3}50%{height:40px;opacity:1}}
+
+/* Voice */
+.voice-btn{position:fixed;bottom:90px;right:24px;width:48px;height:48px;border-radius:50%;border:1px solid #222;background:var(--card);color:var(--muted);font-size:20px;cursor:pointer;z-index:100;transition:var(--t)}
+.voice-btn.on{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px var(--aglow)}
+
+/* Bottom actions */
+.step-act{position:fixed;bottom:0;left:0;right:0;padding:16px 24px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%);display:flex;gap:12px;z-index:90}
+.step-act .btn{flex:1}
+
+/* --- Stats --- */
+#stats{gap:24px}
+.stats-hd{display:flex;align-items:center;justify-content:space-between}
+.stats-hd h2{font-size:20px;font-weight:700}
+.stat-card{background:var(--card);border-radius:var(--r);padding:20px;border:1px solid #1e1e1e}
+.stat-card h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-val{font-size:32px;font-weight:700}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hist-list{display:flex;flex-direction:column;gap:8px}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--card);border-radius:var(--rs);border:1px solid #1e1e1e;font-size:13px}
+.hist-date{color:var(--muted)}
+.hist-int{background:var(--asoft);color:var(--accent);padding:4px 10px;border-radius:20px;font-weight:600;font-size:12px}
+.freq-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-top:8px}
+.freq-bar{flex:1;background:linear-gradient(to top,var(--accent),var(--orange));border-radius:3px 3px 0 0;min-height:4px;transition:var(--t)}
+.freq-labels{display:flex;gap:4px;margin-top:6px}
+.freq-labels span{flex:1;font-size:9px;color:var(--dim);text-align:center}
+
+/* --- Completion --- */
+#completion{justify-content:center;align-items:center;gap:24px;text-align:center}
+.comp-icon{font-size:64px;animation:scaleIn .6s ease}
+.comp-title{font-size:24px;font-weight:700}
+.comp-msg{color:var(--muted);font-size:14px;line-height:1.7;max-width:320px}
+.comp-stats{display:flex;gap:24px}
+.comp-stats div{text-align:center}
+.comp-stats .v{font-size:28px;font-weight:700;color:var(--green)}
+.comp-stats .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* --- Settings --- */
+#settings{gap:24px}
+.clear-sec{text-align:center;padding:20px 0}
+
+/* Responsive */
+@media(min-width:600px){.screen{max-width:480px;margin:0 auto}.sos-btn{width:200px;height:200px}}
+@media(max-height:600px){.sos-btn{width:140px;height:140px;font-size:15px}}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
     </style>
 </head>
 <body>
+<!-- ONBOARDING -->
+<div id="onboarding" class="screen">
+    <div class="ob-icon">🔴</div>
+    <h1 class="ob-title">SOS Calma</h1>
+    <p class="ob-sub">Tu protocolo personal de emergencia para cuando el estrés se dispara. Te guiaré paso a paso.</p>
+    <div class="input-group"><label>¿Cómo te llamas?</label><input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="given-name"></div>
+    <button class="btn btn-p" id="startBtn" disabled>Comenzar</button>
+</div>
 
-    <!-- ========================================
-         SCREEN: ONBOARDING
-         ======================================== -->
-    <div id="onboarding" class="screen">
-        <div>
-            <div style="font-size: 48px; margin-bottom: 16px;">🔴</div>
-            <h1 class="onboarding-title">SOS Calma</h1>
-        </div>
-        <p class="onboarding-sub">Tu protocolo personal de emergencia para cuando el estrés se dispara. Te guiaré paso a paso.</p>
-        <div class="input-group">
-            <label>¿Cómo te llamas?</label>
-            <input type="text" id="nameInput" placeholder="Tu nombre" autocomplete="given-name" autofocus>
-        </div>
-        <button class="btn btn-primary" id="startBtn" disabled>Comenzar</button>
+<!-- HOME -->
+<div id="home" class="screen">
+    <p class="home-hi" id="greeting"></p>
+    <div class="sos-wrap"><div class="sos-ring"></div><div class="sos-ring"></div><button class="sos-btn" id="emergencyBtn">SOS</button></div>
+    <p style="color:var(--dim);font-size:13px">Pulsa cuando sientas estrés</p>
+    <div class="home-ft"><button class="btn btn-g" id="statsBtn">📊 Historial</button><button class="btn btn-g" id="settingsBtn">⚙️ Ajustes</button></div>
+</div>
+
+<!-- PROTOCOL -->
+<div id="protocol" class="screen">
+    <div class="proto-hd"><button class="back" id="protoBack">←</button><h2>Protocolo activo</h2><div style="width:40px"></div></div>
+    <div class="prog-bar"><div class="prog-fill" id="progBar"></div></div>
+    <div class="prog-txt" id="progTxt"></div>
+    <div id="intSec" class="int-sec">
+        <h3>¿Cuánto estrés sientes ahora?</h3><p>Selecciona la intensidad de 1 a 10</p>
+        <div class="int-scale" id="intScale"></div>
+        <div style="margin-top:16px"><button class="btn btn-p" id="startProto" disabled>Empezar protocolo</button></div>
     </div>
-
-    <!-- ========================================
-         SCREEN: HOME
-         ======================================== -->
-    <div id="home" class="screen">
-        <p class="home-greeting" id="greeting"></p>
-        <div class="emergency-btn-wrapper">
-            <div class="pulse-ring"></div>
-            <div class="pulse-ring"></div>
-            <button class="emergency-btn" id="emergencyBtn">SOS</button>
-        </div>
-        <p style="color: var(--text-dim); font-size: 13px;">Pulsa cuando sientas estrés</p>
-        <div class="home-footer">
-            <button class="btn btn-ghost" id="statsBtn">📊 Historial</button>
-            <button class="btn btn-ghost" id="settingsBtn">⚙️ Ajustes</button>
-        </div>
+    <div id="stepBox" class="hidden"></div>
+    <button class="voice-btn hidden" id="voiceBtn" title="Leer en voz alta">🔊</button>
+    <div class="step-act hidden" id="stepAct">
+        <button class="btn btn-s" id="repeatBtn">Repetir</button>
+        <button class="btn btn-ok" id="confirmBtn">✓ Hecho</button>
     </div>
+</div>
 
-    <!-- ========================================
-         SCREEN: PROTOCOL
-         ======================================== -->
-    <div id="protocol" class="screen">
-        <div class="protocol-header">
-            <button class="back-btn" id="protocolBackBtn">←</button>
-            <h2>Protocolo activo</h2>
-            <div style="width:40px"></div>
-        </div>
+<!-- COMPLETION -->
+<div id="completion" class="screen">
+    <div class="comp-icon">✅</div>
+    <h2 class="comp-title" id="compTitle"></h2>
+    <p class="comp-msg" id="compMsg"></p>
+    <div class="comp-stats" id="compStats"></div>
+    <button class="btn btn-p" id="compHome">Volver al inicio</button>
+</div>
 
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-        </div>
-        <div class="progress-text" id="progressText">Paso 0 de 7</div>
+<!-- STATS -->
+<div id="stats" class="screen">
+    <div class="stats-hd"><button class="back" id="statsBack">←</button><h2>Tu historial</h2><div style="width:40px"></div></div>
+    <div class="stats-grid"><div class="stat-card"><h4>Sesiones</h4><div class="stat-val" id="totSess">0</div></div><div class="stat-card"><h4>Intensidad media</h4><div class="stat-val" id="avgInt">—</div></div></div>
+    <div class="stat-card"><h4>Frecuencia (7 días)</h4><div class="freq-chart" id="freqChart"></div><div class="freq-labels" id="freqLbl"></div></div>
+    <div class="stat-card"><h4>Últimas sesiones</h4><div class="hist-list" id="histList"><p style="color:var(--dim);font-size:13px">Sin registros aún</p></div></div>
+    <div class="clear-sec"><button class="btn btn-g" id="clearBtn" style="color:var(--accent)">Borrar datos</button></div>
+</div>
 
-        <!-- Intensity selector (shown first) -->
-        <div id="intensitySection" class="intensity-section">
-            <h3>¿Cuánto estrés sientes ahora?</h3>
-            <p>Selecciona la intensidad de 1 a 10</p>
-            <div class="intensity-scale" id="intensityScale"></div>
-            <div class="mt-16">
-                <button class="btn btn-primary" id="startProtocolBtn" disabled>Empezar protocolo</button>
-            </div>
-        </div>
+<!-- SETTINGS -->
+<div id="settings" class="screen" style="gap:24px">
+    <div class="stats-hd"><button class="back" id="setBack">←</button><h2>Ajustes</h2><div style="width:40px"></div></div>
+    <div class="input-group"><label>Tu nombre</label><input type="text" id="setName"></div>
+    <button class="btn btn-p" id="saveSet">Guardar</button>
+</div>
 
-        <!-- Step content (dynamic) -->
-        <div id="stepContent" class="hidden"></div>
+<script>
+(function(){
+'use strict';
+// ========== DATA ==========
+const SK='sos_calma_data';
+function load(){try{const r=localStorage.getItem(SK);return r?JSON.parse(r):null}catch(e){return null}}
+function save(d){try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}}
+function defaults(){return{name:'',sessions:[],createdAt:new Date().toISOString()}}
+let D=load()||defaults();
 
-        <!-- Voice button -->
-        <button class="voice-btn hidden" id="voiceBtn" title="Leer en voz alta">🔊</button>
+// ========== TEXT VARIANTS (10 per step) ==========
+const V = {
+recognize: {
+  title:["Para. Reconoce lo que pasa.","Detente un momento.","Alto. Observa tu cuerpo.","Frena. ¿Qué está pasando?","Pausa. Escúchate.","Para todo. Mira hacia dentro.","Un momento. Presta atención.","Respira. ¿Qué sientes?","Detente y observa.","Para. Tu cuerpo habla."],
+  exp:["Lo que sientes — corazón acelerado, tensión, respiración corta — es tu cerebro en modo alerta. Ha detectado algo que interpreta como amenaza, aunque probablemente no lo sea. Es biología pura.","Tu cuerpo está activando una respuesta de supervivencia. Corazón rápido, músculos tensos, respiración superficial. No es debilidad: es un mecanismo ancestral que se dispara ante lo que tu cerebro percibe como peligro.","Esas sensaciones físicas — pulso alto, nudos en el estómago, mandíbula apretada — son la alarma de tu sistema nervioso. Está reaccionando como si hubiera una amenaza real, cuando casi seguro no la hay.","Tu cerebro ha pulsado el botón de emergencia. Todo lo que sientes es la respuesta de lucha o huida activándose. Es automático, predecible, y sobre todo: manejable.","Las señales que notas en tu cuerpo son tu sistema nervioso preparándose para algo que interpreta como peligroso. Es una reacción biológica, no un reflejo de la realidad.","El estrés que sientes tiene una explicación fisiológica: tu cerebro ha detectado incertidumbre y ha activado el protocolo de supervivencia. No estás en peligro real.","Lo que experimentas ahora mismo — sea lo que sea físicamente — es tu cerebro ancestral haciendo lo que mejor sabe hacer: prepararte para sobrevivir. El problema es que no hay depredador.","Cada síntoma que notas tiene nombre y apellido neurológico. Tu amígdala ha disparado la alerta, tu cortisol ha subido, tu cuerpo se ha puesto en tensión. Todo tiene explicación.","Lo que sientes es intenso pero temporal. Es tu sistema nervioso simpático activándose. Lleva haciendo esto 300.000 años. La diferencia es que ahora sabes cómo frenarlo.","Esas sensaciones no son caos: son una secuencia predecible que tu cerebro ejecuta ante la incertidumbre. Reconocerlo es el primer paso para desactivarlo."],
+  instr:["Di para ti: \"Mi cerebro ha activado el modo alerta. No hay peligro real. Puedo gestionar esto.\"","Repite mentalmente: \"Esto es una reacción biológica. No es la realidad. Yo tengo el control.\"","Dite a ti mismo: \"Mi sistema nervioso se ha disparado. Lo reconozco. No voy a luchar contra ello, voy a guiarlo.\"","Nombra lo que sientes: \"Noto el corazón rápido. Noto la tensión. Es mi cerebro en modo alerta. No hay peligro real.\"","Reconoce en voz alta o en silencio: \"Esto es estrés. Mi cuerpo está reaccionando. Pero yo decido qué hacer ahora.\"","Di para tus adentros: \"Conozco esta sensación. Es la alarma de mi cerebro. Puedo desactivarla.\"","Piensa o di: \"Mi cerebro está interpretando amenaza donde no la hay. Lo veo. Lo entiendo. Voy a redirigirlo.\"","Repite: \"Esto que siento es química cerebral, no verdad. Puedo cambiar mi respuesta.\"","Dite: \"Mi cuerpo está en modo alerta. Lo reconozco sin juzgarlo. Ahora voy a calmarlo paso a paso.\"","Reconócelo: \"Estrés detectado. No es mi enemigo, es una señal. Voy a trabajar con ella.\""],
+  voice:["Para un momento. Lo que sientes ahora es tu cerebro en modo alerta. Corazón acelerado, tensión, respiración corta. Es biología, no peligro real. Reconócelo... y di para ti: mi cerebro ha activado la alarma... pero no hay peligro real.","Detente. Observa lo que pasa en tu cuerpo. Esas sensaciones intensas son tu sistema nervioso reaccionando. No estás en peligro. Es una respuesta automática. Reconócelo y dite: esto es una reacción biológica... yo tengo el control."]
+},
+reframe: {
+  title:["Redefine los síntomas.","Cambia la etiqueta.","Dale la vuelta.","Reinterpreta la señal.","Renombra lo que sientes.","Transforma la narrativa.","Reencuadra tu estrés.","Cambia el significado.","Hackea tu interpretación.","Convierte la alarma en impulso."],
+  exp:["Esos síntomas no son tu enemigo. Son tu cuerpo preparándose para un reto. Investigadores de Harvard demostraron que cuando reinterpretas el estrés como preparación, tu respuesta cardiovascular cambia por completo: los vasos no se contraen, el daño desaparece.","Lo que sientes es energía disponible. Tu cuerpo está movilizando recursos: más sangre, más oxígeno, más glucosa. Si le dices a tu cerebro que eso es preparación en vez de peligro, la fisiología responde diferente.","El estrés negativo y el estrés productivo producen sensaciones casi idénticas. La diferencia está en cómo los interpretas. Si etiquetas lo que sientes como tu cuerpo preparándose, el impacto negativo se neutraliza.","Estudios muestran que la interpretación que haces del estrés importa tanto como el estrés mismo. Quienes lo ven como energía útil tienen mejor rendimiento y menos daño cardiovascular.","No se trata de negar lo que sientes, sino de reetiquetarlo. Las mismas sensaciones que asocias con ansiedad son idénticas a las de la excitación. Tu cerebro puede cambiar de una a otra con un simple reencuadre.","La diferencia entre pánico y preparación es solo la historia que te cuentas. Tu cuerpo hace lo mismo en ambos casos. Tú eliges el significado.","Piensa en un atleta antes de competir: corazón rápido, manos sudorosas, tensión muscular. ¿Está estresado o activado? Exacto. Las mismas sensaciones, distinto significado.","Tu cuerpo no distingue entre estrés tóxico y energía útil. Eres tú quien asigna esa categoría. Y cuando la cambias, la biología sigue.","Cada síntoma que sientes tiene una función: el corazón rápido bombea más sangre, la tensión prepara los músculos, la respiración rápida oxigena. Todo está diseñado para que rindas más.","La reinterpretación del estrés no es autoengaño: es neurociencia. Cambiar la etiqueta modifica literalmente tu respuesta fisiológica."],
+  instr:["Dite: \"Esto es mi cuerpo calentando motores. Estoy poniéndome a punto para lo que tengo que hacer.\"","Repite: \"Esta energía me va a servir. Mi cuerpo se está preparando, no se está rompiendo.\"","Di para ti: \"Estoy activado, no en peligro. Esta tensión es combustible para lo que viene.\"","Reformula: \"Mi corazón late rápido porque está bombeando recursos. Mis músculos están tensos porque se preparan. Estoy listo.\"","Piensa: \"Esto que siento es lo mismo que siente un atleta antes de competir. Es activación, no destrucción.\"","Dite: \"No estoy estresado, estoy cargando energía. Mi cuerpo sabe lo que hace.\"","Repite mentalmente: \"Estos síntomas son mi cuerpo poniéndose en marcha. Los acepto y los uso.\"","Di: \"La tensión que siento es fuerza preparándose. El corazón rápido es potencia. Voy a usar esto.\"","Reformula: \"Mi cuerpo está haciendo exactamente lo que debe. Estoy calentando motores, no averiándome.\"","Piensa: \"Voy a usar esta energía a mi favor. No es mi enemiga, es mi aliada.\""],
+  voice:["Ahora... cambia la etiqueta de lo que sientes. Esos síntomas no son tu enemigo. Son tu cuerpo preparándose... calentando motores. Dite a ti mismo... esto es energía útil... mi cuerpo se está poniendo a punto.","Redefine los síntomas. Lo que sientes es tu cuerpo movilizando recursos. Más sangre, más oxígeno. Dite... estoy activado, no en peligro... esta energía me va a servir."]
+},
+breathe: {
+  title:["Respira con control.","Toma el mando de tu respiración.","Respira para frenar.","Usa tu respiración como mando.","Exhala más largo que inhalas.","Frena con la respiración.","Activa tu freno interno.","Respira con intención.","Desacelera desde la respiración.","Respira para cambiar tu frecuencia."],
+  exp:["La respiración es el mando a distancia de tu sistema nervioso. Cuando exhalas más tiempo del que inhalas, activas el freno del estrés — el sistema parasimpático. Las frecuencias cerebrales de hiperalerta (High Beta, 20-30 Hz) bajan hacia el rango de calma (Alfa, 8-12 Hz).","Exhalar largo activa el nervio vago, que es la línea directa entre tu cerebro y tu cuerpo para decir: calma. Es la forma más rápida de bajar las frecuencias de alerta.","Tu respiración es el único sistema automático del cuerpo que puedes controlar conscientemente. Úsalo. Una exhalación larga le dice a tu cerebro que no hay peligro.","Cuando exhalas despacio, tu corazón literalmente desacelera. Se llama arritmia sinusal respiratoria. Es biología pura: exhalar más de lo que inhalas = señal de seguridad para tu cerebro.","Piensa en tu respiración como un dial. Ahora está en modo rápido y superficial. Vas a girarlo despacio hacia profundo y lento. Cada exhalación larga es un giro del dial.","Tu cerebro está disparando frecuencias eléctricas de 20-30 Hz: hiperalerta. La respiración lenta y consciente las baja al rango 8-12 Hz, que es donde está la calma y la regeneración.","La exhalación prolongada es el truco más simple y potente de la neurociencia aplicada. No necesitas meditar 20 minutos: necesitas exhalar 6 segundos, varias veces.","Cada exhalación larga envía una cascada de señales calmantes por tu nervio vago. Es como presionar el botón de reset de tu sistema nervioso.","Respirar con intención no es un ejercicio espiritual: es intervención directa sobre tu sistema nervioso autónomo. Exhalar largo = parasimpático activado = calma.","Tu respiración es la herramienta más rápida y accesible que tienes para cambiar tu estado interno. Más rápida que cualquier pastilla, meditación o técnica."],
+  instr:["Mantén pulsado INHALAR mientras tomas aire por la nariz. Suelta y pulsa EXHALAR mientras sueltas el aire por la boca, despacio. Intenta que la exhalación dure más que la inhalación.","Usa los botones para medir tu respiración. Pulsa INHALAR mientras tomas aire. Luego EXHALAR mientras lo sueltas lentamente. El objetivo: alargar cada vez más la exhalación.","Toca y mantén INHALAR mientras llenas los pulmones. Después toca EXHALAR mientras vacías lentamente. Observa los tiempos. Intenta que exhalar dure el doble que inhalar."],
+  voice:["Ahora vas a usar tu respiración como mando a distancia... Mantén pulsado el botón de inhalar... mientras tomas aire por la nariz... despacio... Luego pulsa exhalar... y suelta el aire por la boca... muy lentamente... Intenta que la exhalación dure más que la inhalación... Repite varias veces.","Toma el control de tu respiración... Usa los botones en pantalla... Inhala profundo por la nariz... y exhala muy despacio por la boca... Alarga la exhalación todo lo que puedas... Cada exhalación larga activa tu sistema de calma."]
+},
+visualize: {
+  title:["Visualización tridimensional.","Mapea tu rostro con la mente.","Escaneo espacial interno.","Geometría interna.","Visualiza espacios dentro de ti.","Recorre tu rostro mentalmente.","Crea un mapa 3D interno.","Explora distancias internas.","Visualización de calma.","Esculpe calma con tu imaginación."],
+  exp:["Este ejercicio genera frecuencias Alfa más rápido que meditar o hacer deporte. Al imaginar espacios tridimensionales dentro de tu propio cuerpo, tu cerebro cambia su patrón eléctrico hacia la calma de forma casi instantánea.","La imaginación espacial activa regiones cerebrales que compiten con las zonas de alerta. Al pensar en tres dimensiones sobre espacios que te contienen, las frecuencias de calma se disparan.","Tu cerebro no puede estar en hiperalerta y en pensamiento espacial al mismo tiempo. Al forzar la visualización tridimensional, desplazas las frecuencias de estrés automáticamente.","Cuando imaginas distancias dentro de tu propio cuerpo, activas la corteza parietal — la zona del cerebro que procesa el espacio. Esto desactiva la amígdala, que es la generadora de miedo.","Es el atajo neurocientífico más directo hacia la calma. No necesitas creer en nada, solo imaginar distancias reales dentro de tu propia anatomía.","Visualizar espacios dentro de tu cuerpo es como ponerle un espejo a tu cerebro. Se autoobserva, se autorregula, y genera frecuencias Alfa sin esfuerzo.","Este ejercicio engaña a tu cerebro de la forma más elegante posible: lo pone a trabajar en algo que requiere calma para procesarse. Y la calma llega sola.","La neurociencia llama a esto visualización propioceptiva. Suena sofisticado, pero es simple: imagina espacios dentro de tu cara y tu cerebro se calma.","Es contraintuitivo: para calmarte no necesitas pensar en algo bonito. Necesitas imaginar distancias geométricas dentro de tu propia cabeza. Tu cerebro hace el resto.","Otro camino al mismo efecto: mirar el horizonte en la naturaleza. La visualización tridimensional — sea interna o externa — calma las frecuencias cerebrales."],
+  instr:["Cierra los ojos. Te iré guiando paso a paso. En cada indicación, imagina esa distancia o espacio durante unos segundos. Usa el deslizante para ajustar el tiempo entre indicaciones."],
+  voice:["Cierra los ojos... Voy a guiarte... Imagina el espacio entre tus dos orejas... Siente esa distancia...... Ahora la distancia entre la punta de tu nariz y tu barbilla...... La distancia entre tu ojo izquierdo y tu barbilla...... Ahora tu ojo derecho y tu barbilla...... Imagina la columna de aire dentro de tu nariz...... El espacio que ocupa tu lengua en tu boca...... La distancia entre tu ceja derecha y la punta de tu nariz...... Tu ceja izquierda y la punta de tu nariz...... Y de nuevo... el espacio entre tus dos orejas...... Abre los ojos."]
+},
+identify: {
+  title:["Identifica beneficio y límite.","Ponle nombre y fecha.","¿Qué ganas? ¿Cuándo acaba?","Busca el para qué y el hasta cuándo.","Define beneficio y horizonte.","Ancla tu estrés en el tiempo.","Dale sentido y ponle fecha.","Transforma estrés en inversión.","¿Cuál es el retorno? ¿Cuál es el plazo?","Haz las dos preguntas clave."],
+  exp:["Tu cerebro necesita dos cosas para no convertir el estrés en algo destructivo: saber qué gana con este esfuerzo, y saber cuándo acabará. Sin esa información, interpreta que el estrés durará para siempre.","El estrés productivo (eustrés) tiene un beneficio y un final. El estrés tóxico (distrés) no tiene ni lo uno ni lo otro. Tu cerebro necesita que le des ambas cosas.","Cuando le das a tu cerebro un para qué y un hasta cuándo, transformas amenaza en inversión. Deja de luchar contra el estrés y empieza a usarlo.","Sin horizonte temporal, tu cerebro asume lo peor: esto es permanente. Dale una fecha — aunque sea aproximada — y el alivio es inmediato.","El estrés sin propósito destruye. El estrés con propósito construye. La diferencia la decides tú, ahora mismo, respondiendo dos preguntas.","Tu cerebro es muy bueno gestionando cosas que tienen un para qué y un hasta cuándo. Sin eso, entra en bucle. Dale la información que necesita.","Piensa en el estrés como una inversión: necesitas saber qué rendimiento esperas y cuándo vence. Sin eso, no es inversión: es pérdida.","La simple acción de ponerle fecha al estrés reduce su intensidad. Tu cerebro necesita saber que hay un final.","Si no encuentras beneficio ni final, eso no significa que debas aguantar. Es una señal de que necesitas cambiar la situación, no solo tu reacción.","Dos preguntas simples pueden transformar estrés destructivo en energía productiva. No subestimes su poder."],
+  instr:["Responde mentalmente:\n\n1. \"¿Qué beneficio hay detrás de lo que me estresa?\"\n\n2. \"¿Cuánto durará? Ponle fecha.\"\n\nSi no encuentras beneficio ni final: es señal de que necesitas cambiar algo en la situación.","Piensa en estas dos preguntas:\n\n1. \"¿Qué gano aguantando este estrés?\"\n\n2. \"¿Cuándo termina esto? Dame una fecha.\"\n\nSi no hay respuesta a ninguna, el problema no eres tú: es la situación.","Hazte dos preguntas:\n\n1. \"¿Para qué estoy pasando por esto?\"\n\n2. \"¿Hasta cuándo?\"\n\nDale a tu cerebro un beneficio concreto y un horizonte temporal."],
+  voice:["Ahora... hazte dos preguntas importantes... Primera... ¿Qué beneficio hay detrás de lo que te estresa?... Piénsalo... encuentra la ganancia, aunque sea pequeña...... Segunda... ¿Cuánto durará esta situación?... Ponle una fecha concreta... Tu cerebro necesita saber que esto tiene un final."]
+},
+focus: {
+  title:["Nombra 20 objetos.","Rompe el bucle: nombra cosas.","Foco externo: 20 objetos.","Sal de tu cabeza: mira afuera.","Nombra lo que ves.","20 objetos, rápido.","Ejercicio de focalización.","Ancla tu atención afuera.","Rompe la rumiación.","Desplaza el foco."],
+  exp:["Este ejercicio rompe el bucle de pensamientos estresantes (rumiación) forzando a tu cerebro a entrar en modo atención dirigida. Al nombrar objetos concretos, generas frecuencias Beta de concentración productiva y desplazas las High Beta de estrés.","Cuando estás estresado, tu cerebro está en un foco interno negativo: pensamientos en bucle. Nombrar objetos externos lo fuerza a cambiar de canal. Es como cambiar de emisora en una radio.","La rumiación es un bucle neuronal que se autoalimenta. Nombrar objetos es la forma más directa de cortarlo: obligas a tu cerebro a procesar información nueva y concreta.","Al nombrar objetos, activas la corteza prefrontal (atención) y desactivas la amígdala (miedo). Es un interruptor simple y efectivo.","Tu cerebro no puede rumiar y nombrar objetos al mismo tiempo. Es neurológicamente imposible. Usa eso a tu favor.","Cada objeto que nombras genera una pequeña descarga de dopamina al completar una microtarea. Es un hack neurológico: pequeñas recompensas que acumulan calma.","No importa qué objetos nombres. Lo que importa es que tu cerebro deje de mirarse a sí mismo y mire hacia fuera. Eso rompe el bucle.","Es el ejercicio más simple de toda la neurociencia aplicada. Mira, nombra, siguiente. Repetir 20 veces. El estrés baja.","Piensa en tu atención como un foco de luz. Ahora está apuntando hacia dentro, iluminando preocupaciones. Vas a girarlo 180 grados hacia fuera.","Nombrar objetos es como desfragmentar tu disco duro mental. Le das a tu cerebro tareas simples y concretas, y el caos se ordena."],
+  instr:["Mira a tu alrededor y escribe o nombra en voz alta objetos que veas. Sin repetir. Cada uno que escribas cuenta. Meta: 20."],
+  voice:["Mira a tu alrededor... y nombra en voz alta objetos que veas... uno por uno... sin repetir... lo más rápido que puedas... mesa... lámpara... ventana... sigue tú... nombra veinte objetos distintos... Esto rompe el bucle de pensamientos estresantes."]
+},
+anchor: {
+  title:["Ancla una sensación de bienestar.","Reconecta con tu bienestar.","Activa tu memoria de calma.","Recupera una buena sensación.","Vuelve a un momento de paz.","Reenciende tu bienestar.","Busca tu recuerdo ancla.","Regenera calma desde la memoria.","Conecta con tu yo en calma.","Viaja a un momento de seguridad."],
+  exp:["Tu cerebro puede regenerar cualquier estado que ya haya experimentado. Si alguna vez te sentiste tranquilo, seguro, orgulloso — esa neuroquímica sigue disponible. No es pensamiento positivo vacío: es una capacidad real de tu sistema nervioso.","Las redes neuronales que generaron bienestar en el pasado siguen ahí. Al reactivarlas, le muestras a tu cerebro que la calma es posible. Pasa de modo supervivencia a modo oportunidad.","Tu cerebro tiene la capacidad de volver a fabricar lo que ya ha fabricado. Si sintió paz, puede volver a sentirla. Si sintió orgullo, puede regenerarlo. Solo necesita que le recuerdes cómo.","No es visualización creativa ni autoayuda: es neuroplasticidad. Al revivir un recuerdo positivo, reactivas las mismas redes neuronales que lo generaron. Tu cerebro no distingue bien entre recuerdo vívido y realidad.","Piensa en esto como un atajo neuronal: en vez de construir calma desde cero, accedes a una calma que ya existe en tu memoria. Es más rápido y más potente.","Tu cerebro es una máquina de patrones. Si le das un patrón de bienestar, lo reconoce y lo amplifica. Solo necesita la semilla del recuerdo.","Este ejercicio aprovecha que tu sistema nervioso tiene memoria. Las sensaciones de seguridad y calma dejaron huella. Vas a reactivar esa huella.","No importa lo pequeño que fuera el momento. Una tarde tranquila, un logro personal, un instante de paz. Tu cerebro puede amplificarlo.","Al revivir un recuerdo de bienestar, envías a tu cerebro el mensaje: este estado es posible y seguro. Y tu cerebro empieza a moverse hacia él.","Es el cierre perfecto del protocolo: después de haber bajado la alerta, reconectamos con lo positivo. Le damos a tu cerebro algo hacia donde ir, no solo algo de lo que huir."],
+  instr:["Cierra los ojos. Piensa en un momento concreto en que te sentías bien: tranquilo, seguro, satisfecho. Revive la escena: qué veías, qué sentías en el cuerpo. Quédate ahí 30 segundos. Luego abre los ojos."],
+  voice:["Cierra los ojos... Piensa en un momento del pasado en que te sentías bien... tranquilo... seguro... satisfecho... No importa cuándo fue... Revive esa escena... qué veías... qué sentías en tu cuerpo... qué emociones había... Quédate ahí... respira despacio...... Tu cerebro puede regenerar esa sensación ahora mismo...... Cuando estés listo... abre los ojos."]
+}
+};
 
-        <!-- Bottom actions -->
-        <div class="step-actions hidden" id="stepActions">
-            <button class="btn btn-secondary" id="repeatStepBtn">Repetir</button>
-            <button class="btn btn-success" id="confirmStepBtn">✓ Hecho</button>
-        </div>
+const VIZ_STEPS = [
+  "El espacio entre tus dos orejas",
+  "La distancia de la punta de tu nariz a tu barbilla",
+  "La distancia de tu ojo izquierdo a tu barbilla",
+  "La distancia de tu ojo derecho a tu barbilla",
+  "La columna de aire dentro de tu nariz",
+  "El espacio que ocupa tu lengua en tu boca",
+  "La distancia de tu ceja derecha a la punta de tu nariz",
+  "La distancia de tu ceja izquierda a la punta de tu nariz",
+  "De nuevo, el espacio entre tus dos orejas"
+];
+
+const STEP_IDS = ['recognize','reframe','breathe','visualize','identify','focus','anchor'];
+const STEP_WHYS = [
+  "Tu cerebro sigue programado para la supervivencia: detecta peligro en situaciones cotidianas y reacciona como si fueran amenazas reales. Reconocerlo desactiva la falsa alarma.",
+  "Cuando etiquetas el estrés como negativo, lo amplificas. Cuando lo ves como energía útil, tu cerebro cambia su respuesta fisiológica. No es autoengaño: es redirigir biología real.",
+  "Tu cerebro dispara frecuencias de 20-30 Hz (hiperalerta). La respiración con exhalación larga las baja al rango 8-12 Hz (calma y regeneración). Es el mando a distancia de tu sistema nervioso.",
+  "La imaginación espacial activa regiones que compiten con las zonas de alerta. Al forzar pensamiento tridimensional, las frecuencias Alfa se disparan y las de estrés bajan.",
+  "Cuando le das a tu cerebro un beneficio y un horizonte temporal, transformas estrés tóxico en estrés productivo. Deja de verlo como amenaza y empieza a verlo como inversión.",
+  "El estrés te tiene en un foco interno negativo. Al forzar un foco externo y concreto, rompes el bucle neuronal y generas dopamina al completar microtareas.",
+  "Las redes neuronales que generaron bienestar siguen activas. Al reactivarlas, cambias la orientación de tu cerebro de supervivencia a oportunidad."
+];
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+// ========== DOM ==========
+const $=id=>document.getElementById(id);
+const screens={onboarding:$('onboarding'),home:$('home'),protocol:$('protocol'),completion:$('completion'),stats:$('stats'),settings:$('settings')};
+function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');speechSynthesis&&speechSynthesis.cancel()}
+
+// ========== VOICE (improved) ==========
+function speak(text,cb){
+  if(!window.speechSynthesis)return cb&&cb();
+  speechSynthesis.cancel();
+  // Split on ... for pauses
+  const parts=text.split('...').map(s=>s.trim()).filter(Boolean);
+  let i=0;
+  function next(){
+    if(i>=parts.length){$('voiceBtn').classList.remove('on');return cb&&cb()}
+    const u=new SpeechSynthesisUtterance(parts[i]);
+    u.lang='es-ES';u.rate=0.82;u.pitch=1.05;u.volume=1;
+    const voices=speechSynthesis.getVoices();
+    // Prefer natural-sounding Spanish voices
+    const preferred=['Google español','Mónica','Jorge','Lucia','Microsoft Helena','Paulina'];
+    let voice=voices.find(v=>v.lang.startsWith('es')&&preferred.some(p=>v.name.includes(p)));
+    if(!voice) voice=voices.find(v=>v.lang.startsWith('es')&&v.localService);
+    if(!voice) voice=voices.find(v=>v.lang.startsWith('es'));
+    if(voice) u.voice=voice;
+    u.onend=()=>{i++;setTimeout(next,600)};
+    u.onerror=()=>{i++;next()};
+    speechSynthesis.speak(u);
+  }
+  $('voiceBtn').classList.add('on');
+  next();
+}
+if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}
+
+// ========== ONBOARDING ==========
+const nameIn=$('nameInput'),startBtn=$('startBtn');
+nameIn.addEventListener('input',()=>{startBtn.disabled=!nameIn.value.trim()});
+nameIn.addEventListener('keydown',e=>{if(e.key==='Enter'&&!startBtn.disabled)startBtn.click()});
+startBtn.addEventListener('click',()=>{D.name=nameIn.value.trim();save(D);goHome()});
+
+// ========== HOME ==========
+function goHome(){
+  const h=new Date().getHours();
+  $('greeting').textContent=(h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches')+', '+D.name;
+  show('home');
+}
+$('emergencyBtn').addEventListener('click',startProto);
+$('statsBtn').addEventListener('click',()=>{renderStats();show('stats')});
+$('settingsBtn').addEventListener('click',()=>{$('setName').value=D.name;show('settings')});
+$('setBack').addEventListener('click',goHome);
+$('saveSet').addEventListener('click',()=>{const n=$('setName').value.trim();if(n){D.name=n;save(D)}goHome()});
+
+// ========== PROTOCOL ==========
+let curStep=-1,curInt=0,sessStart=null;
+let breathIn=null,breathTimer=null,vizTimer=null;
+
+function startProto(){
+  curStep=-1;curInt=0;sessStart=Date.now();
+  show('protocol');showIntensity();
+}
+
+function showIntensity(){
+  $('intSec').classList.remove('hidden');$('stepBox').classList.add('hidden');
+  $('stepAct').classList.add('hidden');$('voiceBtn').classList.add('hidden');
+  $('startProto').disabled=true;$('progBar').style.width='0%';$('progTxt').textContent='';
+  const sc=$('intScale');sc.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const b=document.createElement('button');b.className='int-btn';b.textContent=i;
+    b.addEventListener('click',()=>{sc.querySelectorAll('.int-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');curInt=i;$('startProto').disabled=false});
+    sc.appendChild(b);
+  }
+}
+
+$('startProto').addEventListener('click',()=>{
+  $('intSec').classList.add('hidden');$('stepBox').classList.remove('hidden');
+  $('stepAct').classList.remove('hidden');$('voiceBtn').classList.remove('hidden');
+  curStep=0;renderStep();
+});
+
+$('protoBack').addEventListener('click',()=>{cleanup();goHome()});
+$('confirmBtn').addEventListener('click',()=>{cleanup();curStep++;curStep>=STEP_IDS.length?completeProto():renderStep()});
+$('repeatBtn').addEventListener('click',()=>{cleanup();renderStep()});
+
+function cleanup(){
+  if(breathTimer)clearInterval(breathTimer);breathTimer=null;
+  if(vizTimer)clearTimeout(vizTimer);vizTimer=null;
+  speechSynthesis&&speechSynthesis.cancel();
+}
+
+$('voiceBtn').addEventListener('click',()=>{
+  if(!window.speechSynthesis)return;
+  if(speechSynthesis.speaking){speechSynthesis.cancel();$('voiceBtn').classList.remove('on');return}
+  const sid=STEP_IDS[curStep];
+  const txt=pick(V[sid].voice);
+  speak(txt);
+});
+
+function renderStep(){
+  const sid=STEP_IDS[curStep];const total=STEP_IDS.length;
+  $('progBar').style.width=((curStep+1)/total*100)+'%';
+  $('progTxt').textContent=`Paso ${curStep+1} de ${total}`;
+
+  const title=pick(V[sid].title);
+  const exp=pick(V[sid].exp);
+  const instr=Array.isArray(V[sid].instr)?pick(V[sid].instr):V[sid].instr;
+  const why=STEP_WHYS[curStep];
+
+  let visual='';
+  if(sid==='recognize'||sid==='reframe') visual=makeDotsWave();
+  else if(sid==='breathe') visual='<div id="breathUI"></div>';
+  else if(sid==='visualize') visual='<div id="vizUI"></div>';
+  else if(sid==='identify') visual=makeBrainSVG();
+  else if(sid==='focus') visual='<div id="focusUI"></div>';
+  else if(sid==='anchor') visual='<div id="anchorUI"></div>';
+
+  $('stepBox').innerHTML=`<div class="step-card">
+    <div class="step-num"><div class="dot"></div>Paso ${curStep+1}</div>
+    <h3 class="step-title">${title}</h3>
+    <p class="step-exp">${exp}</p>
+    <div class="step-why"><div class="step-why-l">¿Por qué?</div><p>${why}</p></div>
+    <div class="step-vis">${visual}</div>
+    <div class="step-do"><div class="step-do-l">Qué hacer ahora</div><p>${instr.replace(/\n/g,'<br>')}</p></div>
+  </div>`;
+
+  if(sid==='breathe') initBreathUI();
+  else if(sid==='visualize') initVizUI();
+  else if(sid==='focus') initFocusUI();
+  else if(sid==='anchor') initAnchorUI();
+
+  $('stepBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// --- Visual helpers ---
+function makeDotsWave(){
+  let bars='';for(let i=0;i<20;i++) bars+=`<div class="wave-bar" style="animation-delay:${i*0.06}s"></div>`;
+  return `<div class="wave-wrap">${bars}</div>`;
+}
+
+function makeBrainSVG(){
+  return `<svg width="120" height="120" viewBox="0 0 120 120" style="animation:float 3s ease-in-out infinite">
+    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".3"/>
+    <circle cx="60" cy="60" r="35" fill="none" stroke="var(--blue)" stroke-width="1" opacity=".5"/>
+    <path d="M40 55 Q60 30 80 55 Q60 80 40 55Z" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".6"/>
+    <circle cx="48" cy="50" r="3" fill="var(--accent)" opacity=".8"><animate attributeName="opacity" values=".3;1;.3" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="72" cy="50" r="3" fill="var(--blue)" opacity=".8"><animate attributeName="opacity" values=".3;1;.3" dur="2.5s" repeatCount="indefinite"/></circle>
+    <circle cx="60" cy="65" r="3" fill="var(--green)" opacity=".8"><animate attributeName="opacity" values=".3;1;.3" dur="1.8s" repeatCount="indefinite"/></circle>
+    <line x1="48" y1="50" x2="72" y2="50" stroke="var(--orange)" stroke-width=".5" opacity=".4"><animate attributeName="opacity" values=".2;.8;.2" dur="3s" repeatCount="indefinite"/></line>
+    <line x1="48" y1="50" x2="60" y2="65" stroke="var(--purple)" stroke-width=".5" opacity=".4"><animate attributeName="opacity" values=".2;.8;.2" dur="2.5s" repeatCount="indefinite"/></line>
+    <line x1="72" y1="50" x2="60" y2="65" stroke="var(--green)" stroke-width=".5" opacity=".4"><animate attributeName="opacity" values=".2;.8;.2" dur="3.5s" repeatCount="indefinite"/></line>
+  </svg>`;
+}
+
+// --- Breathing UI ---
+function initBreathUI(){
+  const el=$('breathUI');if(!el)return;
+  el.innerHTML=`<div class="breath-ui">
+    <div class="breath-circle" id="bCircle"><div class="breath-label" id="bLabel">Listo</div><div class="breath-timer" id="bTime">0.0</div></div>
+    <div class="breath-stats"><span>Inhalación<div class="val" id="bInT">—</div></span><span>Exhalación<div class="val" id="bOutT">—</div></span><span>Ciclos<div class="val" id="bCycles">0</div></span></div>
+    <div class="breath-hint">Mantén pulsado cada botón mientras realizas la acción</div>
+    <div class="breath-btns">
+      <button class="breath-hold-btn" id="bInBtn">🫁 INHALAR</button>
+      <button class="breath-hold-btn" id="bOutBtn">💨 EXHALAR</button>
     </div>
-
-    <!-- ========================================
-         SCREEN: COMPLETION
-         ======================================== -->
-    <div id="completion" class="screen">
-        <div class="completion-icon">✅</div>
-        <h2 class="completion-title" id="completionTitle">Protocolo completado</h2>
-        <p class="completion-message" id="completionMessage"></p>
-        <div class="completion-stat" id="completionStats"></div>
-        <button class="btn btn-primary" id="completionHomeBtn">Volver al inicio</button>
-    </div>
-
-    <!-- ========================================
-         SCREEN: STATS
-         ======================================== -->
-    <div id="stats" class="screen">
-        <div class="stats-header">
-            <button class="back-btn" id="statsBackBtn">←</button>
-            <h2>Tu historial</h2>
-            <div style="width:40px"></div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h4>Sesiones</h4>
-                <div class="stat-value" id="totalSessions">0</div>
-            </div>
-            <div class="stat-card">
-                <h4>Intensidad media</h4>
-                <div class="stat-value" id="avgIntensity">—</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <h4>Frecuencia (últimos 7 días)</h4>
-            <div class="freq-chart" id="freqChart"></div>
-            <div class="freq-labels" id="freqLabels"></div>
-        </div>
-
-        <div class="stat-card">
-            <h4>Últimas sesiones</h4>
-            <div class="history-list" id="historyList">
-                <p style="color: var(--text-dim); font-size: 13px;">Sin registros aún</p>
-            </div>
-        </div>
-
-        <div class="clear-data-section">
-            <button class="btn btn-ghost" id="clearDataBtn" style="color: var(--accent);">Borrar todos los datos</button>
-        </div>
-    </div>
-
-    <!-- ========================================
-         SCREEN: SETTINGS
-         ======================================== -->
-    <div id="settings" class="screen" style="gap: 24px;">
-        <div class="stats-header">
-            <button class="back-btn" id="settingsBackBtn">←</button>
-            <h2>Ajustes</h2>
-            <div style="width:40px"></div>
-        </div>
-
-        <div class="input-group">
-            <label>Tu nombre</label>
-            <input type="text" id="settingsName" placeholder="Tu nombre">
-        </div>
-
-        <button class="btn btn-primary" id="saveSettingsBtn">Guardar</button>
-    </div>
-
-    <!-- ========================================
-         JAVASCRIPT
-         ======================================== -->
-    <script>
-    (function() {
-        'use strict';
-
-        // ============================================
-        // DATA LAYER — localStorage persistence
-        // ============================================
-        const STORAGE_KEY = 'sos_calma_data';
-
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) return JSON.parse(raw);
-            } catch(e) {}
-            return null;
-        }
-
-        function saveData(data) {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            } catch(e) {}
-        }
-
-        function getDefaultData() {
-            return {
-                name: '',
-                sessions: [],       // [{date, time, intensity, completed, durationSec}]
-                createdAt: new Date().toISOString()
-            };
-        }
-
-        let appData = loadData() || getDefaultData();
-
-        // ============================================
-        // PROTOCOL STEPS DEFINITION
-        // ============================================
-        const STEPS = [
-            {
-                id: 'recognize',
-                title: 'Para. Reconoce lo que pasa.',
-                explanation: 'Lo que sientes ahora — corazón acelerado, respiración corta, tensión muscular, quizá sudoración — son señales de que tu cerebro ha activado el modo alerta. Está interpretando algo de tu entorno como una amenaza, aunque probablemente no lo sea. Es biología, no debilidad.',
-                why: 'Tu cerebro sigue programado para la supervivencia: detecta peligro en situaciones cotidianas (un plazo, una discusión, una incertidumbre) y reacciona como si fuera una amenaza real. Reconocerlo es el primer paso para desactivar esa falsa alarma.',
-                instruction: 'Di en voz alta o para ti mismo: "Mi cerebro ha activado el modo alerta. No hay peligro real. Es una reacción biológica y puedo gestionarla."',
-                visual: 'dots',
-                voiceText: 'Para. Reconoce lo que está pasando. Lo que sientes ahora son señales de que tu cerebro ha activado el modo alerta. Está interpretando algo como una amenaza, aunque probablemente no lo sea. Es biología, no debilidad. Di para ti mismo: Mi cerebro ha activado el modo alerta. No hay peligro real.'
-            },
-            {
-                id: 'reframe',
-                title: 'Redefine los síntomas.',
-                explanation: 'Esos síntomas que sientes — el corazón rápido, la tensión — no son tu enemigo. Son tu cuerpo preparándose para afrontar un reto. Un estudio de Harvard demostró que cuando reinterpretas el estrés como preparación en vez de como peligro, tu cuerpo responde de manera completamente diferente: los vasos sanguíneos no se contraen y el impacto cardiovascular negativo desaparece.',
-                why: 'Cuando etiquetas el estrés como algo negativo, lo amplificas. Cuando lo ves como energía útil, tu cerebro cambia su respuesta fisiológica. No es autoengaño: es redirigir una respuesta biológica real.',
-                instruction: 'Dite a ti mismo: "Esto es mi cuerpo calentando motores. Estoy poniéndome a punto para lo que tengo que hacer. Esta energía me va a servir."',
-                visual: 'dots',
-                voiceText: 'Redefine los síntomas. Lo que sientes no es tu enemigo. Es tu cuerpo preparándose para afrontar un reto. Dite: Esto es mi cuerpo calentando motores. Estoy poniéndome a punto. Esta energía me va a servir.'
-            },
-            {
-                id: 'breathe',
-                title: 'Respira con exhalaciones largas.',
-                explanation: 'La respiración es el mando a distancia de tu sistema nervioso. Cuando exhalas más tiempo del que inhalas, activas el sistema nervioso parasimpático, que es el freno del estrés. Esto baja directamente las frecuencias High Beta (las de alerta excesiva) y aumenta las frecuencias Alfa (las de calma).',
-                why: 'Tu cerebro está disparando frecuencias eléctricas de 20-30 Hz (High Beta): estado de hiperalerta que consume una cantidad enorme de energía. La respiración lenta y consciente es la forma más directa de bajar esas frecuencias hacia el rango Alfa (8-12 Hz), donde está la calma y la regeneración.',
-                instruction: 'Haz 6 ciclos: Inhala 4 segundos por la nariz. Exhala 6 segundos por la boca, lentamente. Sigue el círculo en pantalla.',
-                visual: 'breathing',
-                voiceText: 'Respira con exhalaciones largas. Inhala 4 segundos por la nariz. Exhala 6 segundos por la boca. Repite 6 veces. Esto baja las frecuencias de hiperalerta de tu cerebro.'
-            },
-            {
-                id: 'visualize',
-                title: 'Visualización tridimensional.',
-                explanation: 'Este es el ejercicio más rápido que existe para generar frecuencias Alfa en tu cerebro — más rápido incluso que meditar o hacer deporte. Al imaginar espacios tridimensionales dentro de tu propio cuerpo, tu cerebro cambia su patrón eléctrico hacia la calma casi instantáneamente.',
-                why: 'La imaginación espacial activa regiones cerebrales que compiten con las zonas de alerta. Al forzar a tu cerebro a pensar en tres dimensiones sobre espacios que te contienen, las frecuencias Alfa se disparan y las High Beta bajan.',
-                instruction: 'Cierra los ojos y visualiza, una por una, estas distancias:\n\n1. El espacio entre tus dos orejas\n2. La distancia entre la punta de tu nariz y tu barbilla\n3. La distancia entre tu ojo izquierdo y tu barbilla\n4. La distancia entre tu ojo derecho y tu barbilla\n5. La columna de aire dentro de tu nariz\n6. El espacio que ocupa tu lengua en tu boca\n7. La distancia entre tu ceja derecha y la punta de tu nariz\n8. La distancia entre tu ceja izquierda y la punta de tu nariz\n9. De nuevo, el espacio entre tus dos orejas\n\nAbre los ojos.',
-                visual: 'scan',
-                voiceText: 'Visualización tridimensional. Cierra los ojos. Imagina el espacio entre tus dos orejas. La distancia entre la punta de tu nariz y tu barbilla. La distancia entre tu ojo izquierdo y tu barbilla. Ahora el ojo derecho y tu barbilla. La columna de aire dentro de tu nariz. El espacio que ocupa tu lengua en tu boca. La distancia entre tu ceja derecha y la punta de tu nariz. Tu ceja izquierda y la punta de tu nariz. De nuevo, el espacio entre tus dos orejas. Abre los ojos.'
-            },
-            {
-                id: 'identify',
-                title: 'Identifica el beneficio y el límite.',
-                explanation: 'El estrés en sí no es malo si tiene un propósito (eustrés). Pero tu cerebro necesita dos cosas para no convertirlo en algo destructivo: saber qué gana con este esfuerzo, y saber cuándo acabará. Sin esta información, interpreta que el estrés durará para siempre.',
-                why: 'Cuando le das a tu cerebro un beneficio y un horizonte temporal, transformas el estrés tóxico (distrés) en estrés productivo (eustrés). Tu cerebro deja de verlo como amenaza y empieza a verlo como inversión.',
-                instruction: 'Responde mentalmente o en voz alta:\n\n1. "¿Qué beneficio hay detrás de lo que me estresa?" (encontrar la ganancia, aunque sea pequeña)\n\n2. "¿Cuánto durará esta situación?" (ponle una fecha o periodo concreto)\n\nSi no encuentras beneficio ni final, es una señal de que necesitas cambiar algo en la situación, no solo en tu reacción.',
-                visual: 'none',
-                voiceText: 'Identifica el beneficio y el límite temporal. Pregúntate: ¿Qué beneficio hay detrás de lo que me estresa? Y: ¿Cuánto durará esta situación? Ponle una fecha concreta. Tu cerebro necesita saber que esto tiene un final.'
-            },
-            {
-                id: 'focus',
-                title: 'Nombra 20 objetos.',
-                explanation: 'Este ejercicio de focalización obliga a tu cerebro a salir del pensamiento rumiativo (el bucle de preocupación) y a entrar en modo de atención dirigida. Al nombrar objetos concretos, generas frecuencias Beta de concentración productiva y desplazas las frecuencias High Beta de estrés.',
-                why: 'El estrés te tiene en un foco interno negativo: pensamientos en bucle. Al forzar un foco externo y concreto (nombrar objetos visibles), rompes ese bucle neuronal y le das a tu cerebro una tarea manejable que genera dopamina al completarse.',
-                instruction: 'Mira a tu alrededor y nombra mentalmente o en voz alta 20 objetos distintos que veas. Sin repetir. Lo más rápido que puedas, pero nombrando cada uno: "mesa, lámpara, taza, ventana, cable..."',
-                visual: 'none',
-                voiceText: 'Nombra 20 objetos. Mira a tu alrededor y nombra en voz alta 20 objetos distintos que veas. Sin repetir. Lo más rápido que puedas. Esto rompe el bucle de pensamientos estresantes y activa la concentración productiva.'
-            },
-            {
-                id: 'anchor',
-                title: 'Ancla una sensación de bienestar.',
-                explanation: 'Tu cerebro tiene la capacidad de volver a fabricar cualquier estado que ya haya experimentado. Si alguna vez te sentiste tranquilo, seguro, orgulloso de ti — tu cerebro puede regenerar esa neuroquímica ahora mismo. No es pensamiento positivo vacío: es aprovechar una capacidad real de tu sistema nervioso.',
-                why: 'Las redes neuronales que generaron esa sensación de bienestar en el pasado siguen ahí. Al reactivarlas conscientemente, le muestras a tu cerebro que el bienestar es una opción posible, no una amenaza. Esto cambia su orientación de "modo supervivencia" a "modo oportunidad".',
-                instruction: 'Cierra los ojos un momento. Piensa en una situación concreta del pasado en la que te sentías bien: tranquilo, seguro, satisfecho. No importa cuándo fue ni lo grande o pequeña que fuera. Revive esa escena: qué veías, qué sentías en el cuerpo, qué emociones había. Quédate ahí 30 segundos. Luego abre los ojos.',
-                visual: 'none',
-                voiceText: 'Ancla una sensación de bienestar. Cierra los ojos. Piensa en un momento del pasado en que te sentías bien, tranquilo, seguro. Revive esa escena. Qué veías. Qué sentías en el cuerpo. Quédate ahí unos 30 segundos. Tu cerebro puede regenerar esa sensación ahora mismo.'
-            }
-        ];
-
-        // ============================================
-        // DOM REFS
-        // ============================================
-        const $ = id => document.getElementById(id);
-        const screens = {
-            onboarding: $('onboarding'),
-            home: $('home'),
-            protocol: $('protocol'),
-            completion: $('completion'),
-            stats: $('stats'),
-            settings: $('settings')
-        };
-
-        // ============================================
-        // NAVIGATION
-        // ============================================
-        function showScreen(name) {
-            Object.values(screens).forEach(s => s.classList.remove('active'));
-            screens[name].classList.add('active');
-            // Stop speech on navigation
-            if (window.speechSynthesis) speechSynthesis.cancel();
-        }
-
-        // ============================================
-        // ONBOARDING
-        // ============================================
-        const nameInput = $('nameInput');
-        const startBtn = $('startBtn');
-
-        nameInput.addEventListener('input', () => {
-            startBtn.disabled = nameInput.value.trim().length === 0;
-        });
-
-        nameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
-        });
-
-        startBtn.addEventListener('click', () => {
-            appData.name = nameInput.value.trim();
-            saveData(appData);
-            goHome();
-        });
-
-        // ============================================
-        // HOME
-        // ============================================
-        function goHome() {
-            updateGreeting();
-            showScreen('home');
-        }
-
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let saludo = 'Hola';
-            if (hour < 12) saludo = 'Buenos días';
-            else if (hour < 20) saludo = 'Buenas tardes';
-            else saludo = 'Buenas noches';
-            $('greeting').textContent = `${saludo}, ${appData.name}`;
-        }
-
-        $('emergencyBtn').addEventListener('click', startProtocol);
-        $('statsBtn').addEventListener('click', () => { renderStats(); showScreen('stats'); });
-        $('settingsBtn').addEventListener('click', () => {
-            $('settingsName').value = appData.name;
-            showScreen('settings');
-        });
-
-        // ============================================
-        // SETTINGS
-        // ============================================
-        $('settingsBackBtn').addEventListener('click', goHome);
-        $('saveSettingsBtn').addEventListener('click', () => {
-            const n = $('settingsName').value.trim();
-            if (n) {
-                appData.name = n;
-                saveData(appData);
-            }
-            goHome();
-        });
-
-        // ============================================
-        // PROTOCOL
-        // ============================================
-        let currentStep = -1; // -1 = intensity selection
-        let currentIntensity = 0;
-        let sessionStartTime = null;
-        let breathingInterval = null;
-
-        function startProtocol() {
-            currentStep = -1;
-            currentIntensity = 0;
-            sessionStartTime = Date.now();
-            showScreen('protocol');
-            showIntensitySelector();
-        }
-
-        function showIntensitySelector() {
-            $('intensitySection').classList.remove('hidden');
-            $('stepContent').classList.add('hidden');
-            $('stepActions').classList.add('hidden');
-            $('voiceBtn').classList.add('hidden');
-            $('startProtocolBtn').disabled = true;
-            $('progressBar').style.width = '0%';
-            $('progressText').textContent = '';
-
-            const scale = $('intensityScale');
-            scale.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'intensity-btn';
-                btn.textContent = i;
-                btn.addEventListener('click', () => {
-                    scale.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    currentIntensity = i;
-                    $('startProtocolBtn').disabled = false;
-                });
-                scale.appendChild(btn);
-            }
-        }
-
-        $('startProtocolBtn').addEventListener('click', () => {
-            $('intensitySection').classList.add('hidden');
-            $('stepContent').classList.remove('hidden');
-            $('stepActions').classList.remove('hidden');
-            $('voiceBtn').classList.remove('hidden');
-            currentStep = 0;
-            renderStep();
-        });
-
-        $('protocolBackBtn').addEventListener('click', () => {
-            if (breathingInterval) clearInterval(breathingInterval);
-            if (window.speechSynthesis) speechSynthesis.cancel();
-            goHome();
-        });
-
-        $('confirmStepBtn').addEventListener('click', () => {
-            if (breathingInterval) clearInterval(breathingInterval);
-            if (window.speechSynthesis) speechSynthesis.cancel();
-            currentStep++;
-            if (currentStep >= STEPS.length) {
-                completeProtocol();
-            } else {
-                renderStep();
-            }
-        });
-
-        $('repeatStepBtn').addEventListener('click', () => {
-            if (breathingInterval) clearInterval(breathingInterval);
-            if (window.speechSynthesis) speechSynthesis.cancel();
-            renderStep();
-        });
-
-        function renderStep() {
-            const step = STEPS[currentStep];
-            const total = STEPS.length;
-            const pct = ((currentStep + 1) / total) * 100;
-
-            $('progressBar').style.width = pct + '%';
-            $('progressText').textContent = `Paso ${currentStep + 1} de ${total}`;
-
-            let visualHTML = '';
-            if (step.visual === 'breathing') {
-                visualHTML = `
-                    <div class="step-visual">
-                        <div class="breathing-circle animating" id="breathCircle">Inhala...</div>
-                    </div>`;
-            } else if (step.visual === 'scan') {
-                visualHTML = `
-                    <div class="step-visual">
-                        <div class="body-scan-visual">
-                            <div class="scan-line"></div>
-                        </div>
-                    </div>`;
-            } else if (step.visual === 'dots') {
-                visualHTML = `
-                    <div class="step-visual">
-                        <div class="vis-dots">
-                            <div class="vis-dot"></div>
-                            <div class="vis-dot"></div>
-                            <div class="vis-dot"></div>
-                            <div class="vis-dot"></div>
-                            <div class="vis-dot"></div>
-                        </div>
-                    </div>`;
-            }
-
-            const instructionLines = step.instruction.replace(/\n/g, '<br>');
-
-            $('stepContent').innerHTML = `
-                <div class="step-card">
-                    <div class="step-number">Paso ${currentStep + 1}</div>
-                    <h3 class="step-title">${step.title}</h3>
-                    <p class="step-explanation">${step.explanation}</p>
-                    <div class="step-why">
-                        <div class="step-why-label">¿Por qué?</div>
-                        <p>${step.why}</p>
-                    </div>
-                    ${visualHTML}
-                    <div class="step-instruction">
-                        <div class="step-instruction-label">Qué hacer ahora</div>
-                        <p>${instructionLines}</p>
-                    </div>
-                </div>`;
-
-            // Breathing animation text
-            if (step.visual === 'breathing') {
-                startBreathingAnimation();
-            }
-
-            // Scroll to top of step content
-            $('stepContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function startBreathingAnimation() {
-            if (breathingInterval) clearInterval(breathingInterval);
-            const circle = document.getElementById('breathCircle');
-            if (!circle) return;
-
-            let phase = 0; // 0=inhale, 1=exhale
-            const phases = ['Inhala...', 'Exhala...'];
-
-            function tick() {
-                if (!circle) return;
-                circle.textContent = phases[phase];
-                phase = (phase + 1) % 2;
-            }
-
-            tick();
-            breathingInterval = setInterval(tick, 4000);
-        }
-
-        // ============================================
-        // VOICE (Web Speech API)
-        // ============================================
-        let isSpeaking = false;
-
-        $('voiceBtn').addEventListener('click', () => {
-            if (!window.speechSynthesis) return;
-
-            if (isSpeaking) {
-                speechSynthesis.cancel();
-                isSpeaking = false;
-                $('voiceBtn').classList.remove('speaking');
-                return;
-            }
-
-            const step = STEPS[currentStep];
-            if (!step) return;
-
-            const utterance = new SpeechSynthesisUtterance(step.voiceText);
-            utterance.lang = 'es-ES';
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-
-            // Try to find a Spanish voice
-            const voices = speechSynthesis.getVoices();
-            const esVoice = voices.find(v => v.lang.startsWith('es'));
-            if (esVoice) utterance.voice = esVoice;
-
-            utterance.onstart = () => {
-                isSpeaking = true;
-                $('voiceBtn').classList.add('speaking');
-            };
-            utterance.onend = () => {
-                isSpeaking = false;
-                $('voiceBtn').classList.remove('speaking');
-            };
-            utterance.onerror = () => {
-                isSpeaking = false;
-                $('voiceBtn').classList.remove('speaking');
-            };
-
-            speechSynthesis.speak(utterance);
-        });
-
-        // Preload voices
-        if (window.speechSynthesis) {
-            speechSynthesis.getVoices();
-            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
-        }
-
-        // ============================================
-        // COMPLETION
-        // ============================================
-        function completeProtocol() {
-            const durationSec = Math.round((Date.now() - sessionStartTime) / 1000);
-            const now = new Date();
-
-            const session = {
-                date: now.toISOString(),
-                time: now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                dateStr: now.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }),
-                intensity: currentIntensity,
-                completed: true,
-                durationSec: durationSec
-            };
-
-            appData.sessions.push(session);
-            saveData(appData);
-
-            // Show completion
-            const mins = Math.floor(durationSec / 60);
-            const secs = durationSec % 60;
-
-            $('completionTitle').textContent = `Bien hecho, ${appData.name}`;
-            $('completionMessage').textContent = 'Has completado los 7 pasos del protocolo. Cada vez que lo usas, estás entrenando a tu cerebro para responder mejor al estrés. Es neuroplasticidad en acción.';
-            $('completionStats').innerHTML = `
-                <div>
-                    <div class="val">${mins}:${secs.toString().padStart(2, '0')}</div>
-                    <div class="label">Duración</div>
-                </div>
-                <div>
-                    <div class="val">${currentIntensity}/10</div>
-                    <div class="label">Intensidad</div>
-                </div>
-                <div>
-                    <div class="val">${appData.sessions.length}</div>
-                    <div class="label">Sesión nº</div>
-                </div>`;
-
-            $('stepActions').classList.add('hidden');
-            $('voiceBtn').classList.add('hidden');
-            showScreen('completion');
-        }
-
-        $('completionHomeBtn').addEventListener('click', goHome);
-
-        // ============================================
-        // STATS
-        // ============================================
-        function renderStats() {
-            const sessions = appData.sessions;
-
-            $('totalSessions').textContent = sessions.length;
-
-            if (sessions.length > 0) {
-                const avg = sessions.reduce((s, x) => s + x.intensity, 0) / sessions.length;
-                $('avgIntensity').textContent = avg.toFixed(1);
-            } else {
-                $('avgIntensity').textContent = '—';
-            }
-
-            // Frequency chart (last 7 days)
-            const chart = $('freqChart');
-            const labels = $('freqLabels');
-            chart.innerHTML = '';
-            labels.innerHTML = '';
-
-            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-            const today = new Date();
-            const days = [];
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                const count = sessions.filter(s => s.date.startsWith(dateStr)).length;
-                days.push({ name: dayNames[d.getDay()], count });
-            }
-
-            const maxCount = Math.max(1, ...days.map(d => d.count));
-
-            days.forEach(d => {
-                const bar = document.createElement('div');
-                bar.className = 'freq-bar';
-                bar.style.height = (d.count / maxCount * 100) + '%';
-                if (d.count === 0) bar.style.opacity = '0.15';
-                chart.appendChild(bar);
-
-                const lbl = document.createElement('span');
-                lbl.textContent = d.name;
-                labels.appendChild(lbl);
-            });
-
-            // History list
-            const list = $('historyList');
-            if (sessions.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">Sin registros aún</p>';
-            } else {
-                list.innerHTML = '';
-                const recent = sessions.slice(-10).reverse();
-                recent.forEach(s => {
-                    const item = document.createElement('div');
-                    item.className = 'history-item';
-                    item.innerHTML = `
-                        <div>
-                            <div class="history-date">${s.dateStr || '—'}</div>
-                            <div class="history-time">${s.time || ''}</div>
-                        </div>
-                        <div class="history-intensity">${s.intensity}/10</div>`;
-                    list.appendChild(item);
-                });
-            }
-        }
-
-        $('statsBackBtn').addEventListener('click', goHome);
-
-        $('clearDataBtn').addEventListener('click', () => {
-            if (confirm('¿Borrar todos los datos? Esta acción no se puede deshacer.')) {
-                const name = appData.name; // Keep name
-                appData = getDefaultData();
-                appData.name = name;
-                saveData(appData);
-                renderStats();
-            }
-        });
-
-        // ============================================
-        // INIT
-        // ============================================
-        function init() {
-            if (appData.name) {
-                goHome();
-            } else {
-                showScreen('onboarding');
-            }
-        }
-
-        init();
-
-        // ============================================
-        // SERVICE WORKER REGISTRATION
-        // ============================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
-        }
-
-    })();
-    </script>
-
+  </div>`;
+
+  let phase=null,start=0,lastIn=0,lastOut=0,cycles=0;
+  const circle=$('bCircle'),label=$('bLabel'),timer=$('bTime');
+
+  function startPhase(p){
+    if(phase===p)return;
+    if(phase==='in')lastIn=((Date.now()-start)/1000);
+    if(phase==='out'){lastOut=((Date.now()-start)/1000);cycles++;$('bCycles').textContent=cycles}
+    phase=p;start=Date.now();
+    circle.className='breath-circle '+(p==='in'?'inhaling':'exhaling');
+    label.textContent=p==='in'?'Inhalando...':'Exhalando...';
+    if(p==='in')$('bInBtn').classList.add('active-in');else $('bInBtn').classList.remove('active-in');
+    if(p==='out')$('bOutBtn').classList.add('active-out');else $('bOutBtn').classList.remove('active-out');
+    if(breathTimer)clearInterval(breathTimer);
+    breathTimer=setInterval(()=>{timer.textContent=((Date.now()-start)/1000).toFixed(1)},100);
+  }
+  function stopPhase(){
+    if(!phase)return;
+    if(phase==='in'){lastIn=((Date.now()-start)/1000);$('bInT').textContent=lastIn.toFixed(1)+'s'}
+    if(phase==='out'){lastOut=((Date.now()-start)/1000);$('bOutT').textContent=lastOut.toFixed(1)+'s';cycles++;$('bCycles').textContent=cycles}
+    phase=null;if(breathTimer)clearInterval(breathTimer);breathTimer=null;
+    circle.className='breath-circle';label.textContent='Listo';
+    $('bInBtn').classList.remove('active-in');$('bOutBtn').classList.remove('active-out');
+  }
+
+  ['mousedown','touchstart'].forEach(ev=>{
+    $('bInBtn').addEventListener(ev,e=>{e.preventDefault();startPhase('in')},{passive:false});
+    $('bOutBtn').addEventListener(ev,e=>{e.preventDefault();startPhase('out')},{passive:false});
+  });
+  ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{
+    $('bInBtn').addEventListener(ev,stopPhase);
+    $('bOutBtn').addEventListener(ev,stopPhase);
+  });
+}
+
+// --- Visualization UI ---
+function initVizUI(){
+  const el=$('vizUI');if(!el)return;
+  let delay=4;
+  el.innerHTML=`<div class="viz-ui">
+    <div class="viz-body"><svg viewBox="0 0 100 200">
+      <ellipse cx="50" cy="40" rx="35" ry="40" class="body-part" id="vHead"/>
+      <line x1="15" y1="40" x2="85" y2="40" class="body-part" id="vEars" stroke-dasharray="4,4"/>
+      <circle cx="38" cy="32" r="5" class="body-part" id="vEyeL"/>
+      <circle cx="62" cy="32" r="5" class="body-part" id="vEyeR"/>
+      <line x1="50" y1="38" x2="50" y2="52" class="body-part" id="vNose"/>
+      <ellipse cx="50" cy="58" rx="12" ry="4" class="body-part" id="vMouth"/>
+      <line x1="38" y1="22" x2="50" y2="22" class="body-part" id="vBrowL"/>
+      <line x1="62" y1="22" x2="50" y2="22" class="body-part" id="vBrowR"/>
+      <ellipse cx="50" cy="55" rx="8" ry="3" class="body-part" id="vTongue" opacity=".5"/>
+    </svg><div class="viz-indicator" id="vInd" style="top:50%"></div></div>
+    <div class="viz-label" id="vLabel">Pulsa "Comenzar" cuando estés listo</div>
+    <div class="viz-delay"><span>Pausa:</span><input type="range" min="2" max="8" step="0.5" value="4" id="vDelay"><span class="viz-delay-val" id="vDelayVal">4s</span></div>
+    <button class="btn btn-p" id="vStartBtn" style="margin-top:8px">Comenzar visualización</button>
+  </div>`;
+
+  $('vDelay').addEventListener('input',e=>{delay=parseFloat(e.target.value);$('vDelayVal').textContent=delay+'s'});
+
+  const partMap=['vEars','vNose','vEyeL','vEyeR','vNose','vTongue','vBrowR','vBrowL','vEars'];
+  const posMap=[20,55,40,40,45,58,25,25,20];
+
+  $('vStartBtn').addEventListener('click',()=>{
+    $('vStartBtn').classList.add('hidden');
+    let i=0;
+    function nextViz(){
+      if(i>=VIZ_STEPS.length){$('vLabel').textContent='Abre los ojos.';document.querySelectorAll('.body-part').forEach(p=>p.classList.remove('active'));return}
+      $('vLabel').textContent=VIZ_STEPS[i];
+      document.querySelectorAll('.body-part').forEach(p=>p.classList.remove('active'));
+      const part=document.getElementById(partMap[i]);if(part)part.classList.add('active');
+      $('vInd').style.top=posMap[i]+'%';
+      i++;vizTimer=setTimeout(nextViz,delay*1000);
+    }
+    $('vLabel').textContent='Cierra los ojos...';
+    vizTimer=setTimeout(nextViz,2000);
+  });
+}
+
+// --- Focus/Naming UI ---
+function initFocusUI(){
+  const el=$('focusUI');if(!el)return;
+  el.innerHTML=`<div class="naming-ui">
+    <div class="naming-counter" id="fCount">0</div>
+    <div class="naming-target">de 20 objetos</div>
+    <div class="naming-grid" id="fGrid"></div>
+    <input type="text" class="naming-input" id="fInput" placeholder="Escribe un objeto y pulsa Enter" autocomplete="off">
+  </div>`;
+  let count=0;
+  $('fInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&$('fInput').value.trim()){
+      const word=$('fInput').value.trim();
+      count++;$('fCount').textContent=count;
+      const tag=document.createElement('div');tag.className='naming-tag';tag.textContent=word;
+      $('fGrid').appendChild(tag);$('fInput').value='';
+      if(count>=20){$('fInput').disabled=true;$('fInput').placeholder='¡20 objetos! Bien hecho.'}
+    }
+  });
+  $('fInput').focus();
+}
+
+// --- Anchor UI ---
+function initAnchorUI(){
+  const el=$('anchorUI');if(!el)return;
+  el.innerHTML=`<div class="anchor-ui">
+    <div class="anchor-orb">🌊</div>
+    <div class="anchor-timer" id="aTimer">30</div>
+    <p style="font-size:13px;color:var(--muted)">Cierra los ojos. Revive tu momento de calma.</p>
+    <button class="btn btn-s" id="aStartBtn">Empezar 30 segundos</button>
+  </div>`;
+  $('aStartBtn').addEventListener('click',()=>{
+    $('aStartBtn').classList.add('hidden');
+    let t=30;
+    const iv=setInterval(()=>{t--;$('aTimer').textContent=t;if(t<=0){clearInterval(iv);$('aTimer').textContent='✓';$('aTimer').style.color='var(--green)'}},1000);
+  });
+}
+
+// ========== COMPLETION ==========
+function completeProto(){
+  const dur=Math.round((Date.now()-sessStart)/1000);const now=new Date();
+  D.sessions.push({date:now.toISOString(),time:now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),dateStr:now.toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}),intensity:curInt,completed:true,durationSec:dur});
+  save(D);
+  const m=Math.floor(dur/60),s=dur%60;
+  $('compTitle').textContent='Bien hecho, '+D.name;
+  $('compMsg').textContent='Has completado los 7 pasos. Cada vez que lo usas, entrenas a tu cerebro para responder mejor al estrés. Es neuroplasticidad en acción.';
+  $('compStats').innerHTML=`<div><div class="v">${m}:${s.toString().padStart(2,'0')}</div><div class="l">Duración</div></div><div><div class="v">${curInt}/10</div><div class="l">Intensidad</div></div><div><div class="v">${D.sessions.length}</div><div class="l">Sesión nº</div></div>`;
+  $('stepAct').classList.add('hidden');$('voiceBtn').classList.add('hidden');
+  show('completion');
+}
+$('compHome').addEventListener('click',goHome);
+
+// ========== STATS ==========
+function renderStats(){
+  const ss=D.sessions;$('totSess').textContent=ss.length;
+  $('avgInt').textContent=ss.length?((ss.reduce((a,x)=>a+x.intensity,0)/ss.length).toFixed(1)):'—';
+  const ch=$('freqChart'),lb=$('freqLbl');ch.innerHTML='';lb.innerHTML='';
+  const dn=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];const today=new Date();const days=[];
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];days.push({n:dn[d.getDay()],c:ss.filter(s=>s.date.startsWith(ds)).length})}
+  const mx=Math.max(1,...days.map(d=>d.c));
+  days.forEach(d=>{const b=document.createElement('div');b.className='freq-bar';b.style.height=(d.c/mx*100)+'%';if(!d.c)b.style.opacity='.15';ch.appendChild(b);const l=document.createElement('span');l.textContent=d.n;lb.appendChild(l)});
+  const list=$('histList');
+  if(!ss.length){list.innerHTML='<p style="color:var(--dim);font-size:13px">Sin registros aún</p>';return}
+  list.innerHTML='';ss.slice(-10).reverse().forEach(s=>{const it=document.createElement('div');it.className='hist-item';it.innerHTML=`<div><div class="hist-date">${s.dateStr||'—'}</div></div><div class="hist-int">${s.intensity}/10</div>`;list.appendChild(it)});
+}
+$('statsBack').addEventListener('click',goHome);
+$('clearBtn').addEventListener('click',()=>{if(confirm('¿Borrar todos los datos?')){const n=D.name;D=defaults();D.name=n;save(D);renderStats()}});
+
+// ========== INIT ==========
+D.name?goHome():show('onboarding');
+if('serviceWorker' in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+})();
+</script>
 </body>
 </html>
