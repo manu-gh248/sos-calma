@@ -558,6 +558,11 @@ $('voiceBtn').addEventListener('click',()=>{
   if(curAudio||$('voiceBtn').classList.contains('on')){stopSpeaking();return}
   const sid=STEP_IDS[curStep];
   speakStep(sid);
+  // In visualize step, also auto-start the visual animation
+  if(sid==='visualize'){
+    const vBtn=$('vStartBtn');
+    if(vBtn&&!vBtn.classList.contains('hidden'))vBtn.click();
+  }
 });
 
 function renderStep(){
@@ -717,6 +722,8 @@ function initVizUI(){
 
   $('vStartBtn').addEventListener('click',()=>{
     $('vStartBtn').classList.add('hidden');
+    // Also start audio if not already playing
+    if(!curAudio&&!$('voiceBtn').classList.contains('on')){speakStep('visualize')}
     let i=0;
     function nextViz(){
       if(i>=VIZ_STEPS.length){$('vLabel').textContent='Abre los ojos.';document.querySelectorAll('.body-part').forEach(p=>p.classList.remove('active'));return}
