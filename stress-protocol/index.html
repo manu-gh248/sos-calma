@@ -273,7 +273,7 @@ body{min-height:100%;font-family:var(--font);background:transparent;color:var(--
     <div class="home-ft"><button class="btn btn-g" id="statsBtn">📊 Historial</button><button class="btn btn-g" id="settingsBtn">⚙️ Ajustes</button></div>
     <div class="credits">
         <span>made with <canvas id="pixelHeart" width="16" height="14" class="credits-heart" style="vertical-align:middle"></canvas> by <strong>LIDERAPIA</strong> team</span>
-        <span class="version-tag">v2.5.0</span>
+        <span class="version-tag">v2.6.0</span>
     </div>
     <button class="btn btn-p hidden" id="installBtn" style="width:100%;max-width:280px">📲 Instalar en mi móvil</button>
     <button class="btn btn-g" id="checkUpdateBtn" style="font-size:11px;margin-top:-8px">🔄 Buscar actualizaciones</button>
@@ -433,19 +433,25 @@ var AUDIO={
   anchor:[['audio/anchor_1.mp3']]
 };
 
+// Persistent audio element — created once on first user gesture, reused for all clips.
+// On mobile, creating new Audio() from setTimeout breaks autoplay policy.
+var audioEl=null;
+
 function stopSpeaking(){
   speakingId++;
-  if(curAudio){curAudio.pause();curAudio.currentTime=0;curAudio=null}
+  if(audioEl){audioEl.pause();audioEl.removeAttribute('src');audioEl.load()}
+  curAudio=null;
   if(vizPauseTimer){clearTimeout(vizPauseTimer);vizPauseTimer=null}
   $('voiceBtn').classList.remove('on');
 }
 
 function playAudioFile(src,cb){
-  var a=new Audio(src);
-  curAudio=a;
-  a.onended=function(){curAudio=null;if(cb)cb()};
-  a.onerror=function(){curAudio=null;if(cb)cb()};
-  a.play().catch(function(){curAudio=null;if(cb)cb()});
+  if(!audioEl) audioEl=new Audio();
+  audioEl.onended=function(){curAudio=null;if(cb)cb()};
+  audioEl.onerror=function(){curAudio=null;if(cb)cb()};
+  audioEl.src=src;
+  curAudio=audioEl;
+  audioEl.play().catch(function(){curAudio=null;if(cb)cb()});
 }
 
 function speakStep(sid){
@@ -843,7 +849,7 @@ function drawPixelHeart(){
 }
 
 // ========== PWA UPDATE SYSTEM ==========
-const APP_VERSION='2.5.0';
+const APP_VERSION='2.6.0';
 let swRegistration=null;
 function initSW(){
   if(!('serviceWorker' in navigator))return;
